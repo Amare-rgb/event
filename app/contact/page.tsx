@@ -1,11 +1,85 @@
-// app/contact/page.tsx
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+
+// Translations
+const translations = {
+  en: {
+    // Header
+    contactUs: 'Contact Us',
+    home: 'Home',
+    // Hero
+    getInTouch: 'Get in Touch',
+    heroDescription: 'Have questions about our event or services? We\'d love to hear from you! Reach out to us through any of the channels below.',
+    // Contact Info
+    contactInformation: 'Contact Information',
+    email: 'Email',
+    phone: 'Phone',
+    whatsapp: 'WhatsApp',
+    telegram: 'Telegram',
+    location: 'Location',
+    // Form
+    sendMessage: 'Send Us a Message',
+    yourName: 'Your Name *',
+    emailAddress: 'Email Address *',
+    subject: 'Subject',
+    message: 'Message *',
+    enterName: 'Enter your name',
+    enterEmail: 'Enter your email',
+    enterSubject: 'What\'s this about?',
+    writeMessage: 'Write your message here...',
+    send: 'Send Message',
+    sending: 'Sending...',
+    // Success/Error
+    successMessage: 'Thank you! Your message has been sent successfully.',
+    errorMessage: 'Failed to send message. Please try again.',
+    // Social
+    connectWithUs: 'Connect With Us',
+    findUs: 'Find Us',
+    // Footer
+    rightwork: 'Rightwork at right time',
+  },
+  am: {
+    // Header
+    contactUs: 'አግኙን',
+    home: 'መነሻ',
+    // Hero
+    getInTouch: 'ያግኙን',
+    heroDescription: 'ስለ ዝግጅታችን ወይም አገልግሎቶቻችን ጥያቄ አለዎት? ከእኛ ጋር መገናኘት እንወዳለን! ከታች ባሉት ማንኛውም ቻናሎች ያግኙን።',
+    // Contact Info
+    contactInformation: 'የእውቂያ መረጃ',
+    email: 'ኢሜይል',
+    phone: 'ስልክ',
+    whatsapp: 'ዋትስአፕ',
+    telegram: 'ቴሌግራም',
+    location: 'አድራሻ',
+    // Form
+    sendMessage: 'መልእክት ይላኩልን',
+    yourName: 'ስምዎ *',
+    emailAddress: 'ኢሜይል አድራሻ *',
+    subject: 'ርዕስ',
+    message: 'መልእክት *',
+    enterName: 'ስምዎን ያስገቡ',
+    enterEmail: 'ኢሜይልዎን ያስገቡ',
+    enterSubject: 'ይህ ስለ ምንድነው?',
+    writeMessage: 'መልእክትዎን እዚህ ይጻፉ...',
+    send: 'መልእክት ላክ',
+    sending: 'እየተላከ ነው...',
+    // Success/Error
+    successMessage: 'እናመሰግናለን! መልእክትዎ በተሳካ ሁኔታ ተልኳል።',
+    errorMessage: 'መልእክት መላክ አልተሳካም። እባክዎ እንደገና ይሞክሩ።',
+    // Social
+    connectWithUs: 'ያገናኙን',
+    findUs: 'ያግኙን',
+    // Footer
+    rightwork: 'በትክክለኛው ጊዜ ትክክለኛ ስራ',
+  }
+};
 
 export default function ContactPage() {
+  const [language, setLanguage] = useState<'en' | 'am'>('en');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,6 +91,12 @@ export default function ContactPage() {
     type: null,
     message: ''
   });
+
+  const t = translations[language];
+
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === 'en' ? 'am' : 'en');
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -31,19 +111,16 @@ export default function ContactPage() {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      // Here you would send the form data to your API
-      // For now, we'll just simulate a successful submission
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       setSubmitStatus({
         type: 'success',
-        message: 'Thank you! Your message has been sent successfully.'
+        message: t.successMessage
       });
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch (error) {
       setSubmitStatus({
         type: 'error',
-        message: 'Failed to send message. Please try again.'
+        message: t.errorMessage
       });
     } finally {
       setIsSubmitting(false);
@@ -51,80 +128,49 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    {
-      icon: '📧',
-      title: 'Email',
-      details: 'suport@dreammoredigitals.com',
-      link: 'mailto:suport@dreammoredigitals.com'
-    },
-    {
-      icon: '📱',
-      title: 'Phone',
-      details: '+251 993 132 122',
-      link: 'tel:+251993132122'
-    },
-    {
-      icon: '💬',
-      title: 'WhatsApp',
-      details: '+251 993 132 122',
-      link: 'https://wa.me/251993132122'
-    },
-    {
-      icon: '✈️',
-      title: 'Telegram',
-      details: '@Dreammore21',
-      link: 'https://t.me/Dreammore21'
-    },
-    {
-      icon: '📍',
-      title: 'Location',
-      details: 'Bahirdar, Ethiopia',
-      link: 'https://maps.google.com/?q=Bahirdar,Ethiopia'
-    }
+    { icon: '', title: t.email, details: 'suport@dreammoredigitals.com', link: 'mailto:suport@dreammoredigitals.com' },
+    { icon: '', title: t.phone, details: '+251 993 132 122', link: 'tel:+251993132122' },
+    { icon: '', title: t.whatsapp, details: '+251 993 132 122', link: 'https://wa.me/251993132122' },
+    { icon: '', title: t.telegram, details: '@Dreammore21', link: 'https://t.me/Dreammore21' },
+    { icon: '', title: t.location, details: language === 'en' ? 'Bahirdar, Ethiopia' : 'ባህር ዳር፣ ኢትዮጵያ', link: 'https://maps.google.com/?q=Bahirdar,Ethiopia' }
   ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50/30">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 md:py-4">
-          <div className="flex items-center justify-between gap-2">
-            <Link href="/" className="flex items-center gap-2 flex-shrink-0 min-w-0">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
-                  <Image 
-                    src="/logo.jpg" 
-                    alt="Logo" 
-                    width={56} 
-                    height={56}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div className="flex flex-col leading-tight min-w-0">
-                  <span className="text-base md:text-2xl font-extrabold text-gray-900 tracking-tight truncate">
-                    DreamMore
-                  </span>
-                  <span className="hidden xs:flex text-[8px] md:text-xs text-gray-500 tracking-wider items-center gap-1">
-                    <span className="text-orange-500 text-[6px] md:text-[10px]">⏰</span>
-                    Rightwork at right time
-                  </span>
-                </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-4">
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden shadow-md">
+                <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="object-cover w-full h-full" />
+              </div>
+              <div className="hidden xs:block">
+                <span className="text-lg md:text-xl font-extrabold text-gray-900">DreamMore</span>
+                <span className="hidden sm:block text-[10px] text-gray-500">{t.rightwork}</span>
               </div>
             </Link>
 
-            <div className="hidden lg:block flex-1 text-center">
-              <span className="text-sm font-extrabold text-orange-600 tracking-wide">
-                Contact Us
-              </span>
+            <div className="hidden lg:block text-center">
+              <span className="text-sm font-bold text-orange-600">{t.contactUs}</span>
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              {/* Language Toggle */}
+              <button
+                onClick={toggleLanguage}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+              >
+                <span>{language === 'en' ? '🇪🇹' : '🇬🇧'}</span>
+                <span className="hidden xs:inline">{language === 'en' ? 'አማርኛ' : 'English'}</span>
+              </button>
+
               <Link
                 href="/"
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-1 sm:gap-2 transform hover:scale-105 whitespace-nowrap"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2"
               >
-                <span>🏠</span>
-                <span className="hidden xs:inline">Home</span>
+                <span>Home</span>
+                <span className="hidden xs:inline">{t.home}</span>
               </Link>
             </div>
           </div>
@@ -132,169 +178,134 @@ export default function ContactPage() {
       </header>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 md:py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Page Header */}
-        <div className="text-center mb-8 md:mb-12 fade-in">
+        <div className="text-center mb-8 md:mb-10">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 mb-3">
-            Get in Touch
+            {t.getInTouch}
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
-            Have questions about our event or services? Wed love to hear from you! 
-            Reach out to us through any of the channels below.
+          <p className="text-sm md:text-base text-gray-600 max-w-2xl mx-auto">
+            {t.heroDescription}
           </p>
-          <div className="w-24 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-4 rounded-full"></div>
+          <div className="w-20 h-1 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-4 rounded-full"></div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
-          {/* Left Side - Contact Information */}
-          <div className="space-y-4 md:space-y-6">
-            <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-6 border border-gray-100">
-              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span>📌</span>
-                Contact Information
+          {/* Left - Contact Info */}
+          <div className="space-y-4">
+            <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border border-gray-100">
+              <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span></span> {t.contactInformation}
               </h2>
-              
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {contactInfo.map((item, index) => (
                   <a
                     key={index}
                     href={item.link}
                     target={item.link.startsWith('http') ? '_blank' : undefined}
                     rel={item.link.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-orange-50 transition-all duration-300 group cursor-pointer"
+                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-50 transition group"
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-orange-100 to-amber-100 rounded-xl flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-110 transition-transform">
+                    <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-lg group-hover:scale-110 transition">
                       {item.icon}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        {item.title}
-                      </p>
-                      <p className="text-sm md:text-base text-gray-900 font-medium group-hover:text-orange-600 transition-colors">
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-gray-500 uppercase">{item.title}</p>
+                      <p className="text-sm text-gray-900 font-medium group-hover:text-orange-600 transition">
                         {item.details}
                       </p>
                     </div>
-                    <span className="text-gray-300 group-hover:text-orange-500 transition-colors">
-                      →
-                    </span>
+                    <span className="text-gray-300 group-hover:text-orange-500">→</span>
                   </a>
                 ))}
               </div>
             </div>
 
-            {/* Social Media / Quick Links */}
-            <div className="bg-gradient-to-br from-orange-50 to-amber-50/50 rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-6 border border-orange-100/50">
-              <h3 className="text-sm md:text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <span>🌐</span>
-                Connect With Us
+            {/* Social Links */}
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50/50 rounded-2xl shadow-lg p-5 md:p-6 border border-orange-100/50">
+              <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <span></span> {t.connectWithUs}
               </h3>
               <div className="flex flex-wrap gap-2">
-                <a
-                  href="https://t.me/Dreammore21"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 flex items-center gap-2 text-sm"
-                >
-                  <span>✈️</span>
-                  Telegram
+                <a href="https://t.me/Dreammore21" target="_blank" rel="noopener noreferrer" className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2">
+                  <span></span> {t.telegram}
                 </a>
-                <a
-                  href="https://wa.me/251993132122"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 flex items-center gap-2 text-sm"
-                >
-                  <span>💬</span>
-                  WhatsApp
+                <a href="https://wa.me/251993132122" target="_blank" rel="noopener noreferrer" className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2">
+                  <span></span> {t.whatsapp}
                 </a>
-                <a
-                  href="https://www.tiktok.com/@dreammorecompany"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-white px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all hover:scale-105 flex items-center gap-2 text-sm"
-                >
-                  <span>🎵</span>
-                  TikTok
+                <a href="https://www.tiktok.com/@dreammorecompany" target="_blank" rel="noopener noreferrer" className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2">
+                  <span></span> TikTok
                 </a>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Contact Form */}
-          <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl p-4 md:p-6 border border-gray-100">
-            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <span>✉️</span>
-              Send Us a Message
+          {/* Right - Contact Form */}
+          <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border border-gray-100">
+            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <span>✉️</span> {t.sendMessage}
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Your Name *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.yourName}</label>
                 <input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                  placeholder="Enter your name"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
+                  placeholder={t.enterName}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email Address *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddress}</label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                  placeholder="Enter your email"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
+                  placeholder={t.enterEmail}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Subject
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.subject}</label>
                 <input
                   type="text"
                   name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
-                  placeholder="What's this about?"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition"
+                  placeholder={t.enterSubject}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Message *
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t.message}</label>
                 <textarea
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
                   required
                   rows={4}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition resize-none"
-                  placeholder="Write your message here..."
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition resize-none"
+                  placeholder={t.writeMessage}
                 />
               </div>
 
               {submitStatus.type === 'success' && (
-                <div className="bg-green-50 border-l-4 border-green-500 p-3 rounded">
+                <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
                   <p className="text-green-700 text-sm">{submitStatus.message}</p>
                 </div>
               )}
 
               {submitStatus.type === 'error' && (
-                <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded">
+                <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
                   <p className="text-red-700 text-sm">{submitStatus.message}</p>
                 </div>
               )}
@@ -302,17 +313,17 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
-                    Sending...
+                    {t.sending}
                   </>
                 ) : (
                   <>
                     <span>📤</span>
-                    Send Message
+                    {t.send}
                   </>
                 )}
               </button>
@@ -320,14 +331,13 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* Map Section */}
-        <div className="mt-8 md:mt-12 bg-white rounded-2xl md:rounded-3xl shadow-xl overflow-hidden border border-gray-100">
-          <div className="p-4 md:p-6">
-            <h3 className="text-lg md:text-xl font-bold text-gray-900 mb-3 flex items-center gap-2">
-              <span>🗺️</span>
-              Find Us
+        {/* Map */}
+        <div className="mt-8 md:mt-10 bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+          <div className="p-4 md:p-5">
+            <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+              <span>🗺️</span> {t.findUs}
             </h3>
-            <div className="relative w-full h-[200px] md:h-[300px] bg-gray-200 rounded-lg overflow-hidden">
+            <div className="relative w-full h-[200px] md:h-[280px] bg-gray-200 rounded-lg overflow-hidden">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126866.5!2d37.35!3d11.6!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x164b8b1a8e8b8b8b%3A0x8b8b8b8b8b8b8b8b!2sBahir%20Dar%2C%20Ethiopia!5e0!3m2!1sen!2s!4v1234567890"
                 width="100%"
@@ -340,7 +350,7 @@ export default function ContactPage() {
               ></iframe>
             </div>
             <p className="text-xs text-gray-500 mt-2 text-center">
-              📍 Bahirdar, Ethiopia
+              📍 {language === 'en' ? 'Bahirdar, Ethiopia' : 'ባህር ዳር፣ ኢትዮጵያ'}
             </p>
           </div>
         </div>
@@ -348,21 +358,18 @@ export default function ContactPage() {
 
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-20px); }
+          from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .fade-in { animation: fadeIn 0.8s ease-out; }
+        .fade-in { animation: fadeIn 0.6s ease-out; }
         
-        /* Custom breakpoint for extra small screens */
         @media (min-width: 480px) {
-          .xs\\:flex { display: flex; }
+          .xs\\:block { display: block; }
           .xs\\:inline { display: inline; }
-          .xs\\:hidden { display: none; }
         }
         @media (max-width: 479px) {
-          .xs\\:flex { display: none; }
+          .xs\\:block { display: none; }
           .xs\\:inline { display: none; }
-          .xs\\:hidden { display: inline; }
         }
       `}</style>
     </div>

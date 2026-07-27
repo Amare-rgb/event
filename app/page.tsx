@@ -7,6 +7,124 @@ import RegistrationForm from '@/app/components/RegistrationForm';
 import AdminLogin from '@/app/components/AdminLogin';
 import CommentsSection from '@/app/components/CommentsSection';
 
+// Complete Translations - Fixed Amharic
+const translations = {
+  en: {
+    // Navbar
+    website: 'Website',
+    contact: 'Contact',
+    comment: 'Comment',
+    register: 'Register',
+    login: 'Login',
+    close: 'Close',
+    language: 'አማርኛ',
+    rightwork: 'Rightwork at right time',
+    menu: 'Menu',
+    // Hero
+    welcome: 'Welcome to',
+    dreamMore: 'DreamMore',
+    eventAttendance: '✨ Dream More Event Attendance ✨',
+    digitalAgency: 'Digital Agency Event 2026',
+    // About
+    about: 'About DreamMore',
+    empowering: 'Empowering Digital Excellence',
+    aboutText: 'Dream More is a collaborative group of dynamic youth and active team members dedicated to education purpose, digital marketing, and a wide range of tech-related services. We prioritize a client-centred approach, supported by our versatile service offerings and an unwavering commitment to quality. With a focus on reliability, trust, and continuous innovation, our dedicated team adapts to meet the evolving demands of every client, ensuring that we consistently exceed expectations.',
+    // Highlights
+    highlights: 'Event Highlights',
+    highlight1: 'Network with industry leaders and professionals',
+    highlight2: 'Learn from top digital marketing experts',
+    highlight3: 'Explore innovative tech solutions and trends',
+    highlight4: 'Connect with like-minded professionals',
+    highlight5: 'Gain valuable insights for business growth',
+    // Register
+    registerNow: 'Register Now for Event 2026',
+    registerNowShort: 'Register Now',
+    joinUs: 'Join us for an unforgettable experience',
+    // Slider
+    slide1Title: 'Welcome To DreamMore Event',
+    slide1Desc: 'Join us!',
+    slide2Title: 'Naky Hotel',
+    slide2Desc: 'Connect with leaders',
+    slide3Title: 'Business 2026',
+    slide3Desc: 'Learn from the best',
+    slide4Title: 'Success Stories',
+    slide4Desc: 'Be part of it',
+    // Footer
+    empower: 'Empower digital agencies.',
+    quickLinks: 'Quick Links',
+    home: 'Home',
+    admin: 'Admin',
+    eventInfo: 'Event Info',
+    connect: 'Connect',
+    privacy: 'Privacy',
+    terms: 'Terms',
+    secure: 'Secure',
+    rights: '© 2026 DreamMore. All rights reserved.',
+    backToHome: 'Back to Home',
+    // Event Date
+    eventDate: 'July 11, 2026',
+    eventLocation: 'DreamMore Events',
+  
+  },
+  am: {
+    // Navbar
+    website: 'ድር ጣቢያ',
+    contact: 'አግኙን',
+    comment: 'አስተያየት',
+    register: 'ይመዝገቡ',
+    login: 'ግባ',
+    close: 'ዝጋ',
+    language: 'English',
+    rightwork: 'በትክክለኛው ጊዜ ትክክለኛ ስራ',
+    menu: 'ምናሌ',
+    // Hero
+    welcome: 'እንኳን ወደ',
+    dreamMore: 'ድሪም ሞር በደህና መጡ',
+    eventAttendance: '✨ የድሪም ሞር ክስተት መገኘት ✨',
+    digitalAgency: 'የዲጂታል ኤጀንሲ ዝግጅት 2026',
+    // About
+    about: 'ስለ ድሪም ሞር',
+    empowering: 'ዲጂታል ልቀትን ማበረታታት',
+    aboutText: 'ድሪም ሞር ለትምህርት ዓላማ፣ ለዲጂታል ግብይት እና ለተለያዩ የቴክኖሎጂ አገልግሎቶች የተሰጠ ተለዋዋጭ ወጣቶች እና ንቁ የቡድን አባላት ትብብር ነው። እኛ ለደንበኞች ያማከለ አካሄድን፣ ሁለገብ የአገልግሎት አቅርቦቶቻችን እና ለጥራት ያለን ቁርጠኝነት ቅድሚያ እንሰጣለን። በአስተማማኝነት፣ በመተማመን እና ቀጣይነት ባለው ፈጠራ ላይ በማተኮር፣ የታመነ ቡድናችን የእያንዳንዱን ደንበኛ ተለዋዋጭ ፍላጎቶች ለማሟላት ይላመዳል።',
+    // Highlights
+    highlights: 'የዝግጅቱ ዋና ዋና ነጥቦች',
+    highlight1: 'ከኢንዱስትሪ መሪዎች እና ባለሙያዎች ጋር መገናኘት',
+    highlight2: 'ከከፍተኛ የዲጂታል ግብይት ባለሙያዎች መማር',
+    highlight3: 'አዳዲስ የቴክኖሎጂ መፍትሄዎችን እና አዝማሚያዎችን ማሰስ',
+    highlight4: 'ተመሳሳይ አስተሳሰብ ካላቸው ባለሙያዎች ጋር መገናኘት',
+    highlight5: 'ለንግድ እድገት ጠቃሚ ግንዛቤዎችን ማግኘት',
+    // Register
+    registerNow: 'ለ2026 ዝግጅት አሁን ይመዝገቡ',
+    registerNowShort: 'አሁን ይመዝገቡ',
+    joinUs: 'ለማይረሳ ልምድ ይቀላቀሉን',
+    // Slider
+    slide1Title: 'እንኳን ወደ ድሪም ሞር ዝግጅት በደህና መጡ',
+    slide1Desc: 'ይቀላቀሉን!',
+    slide2Title: 'ናኪ ሆቴል',
+    slide2Desc: 'ከመሪዎች ጋር ይገናኙ',
+    slide3Title: 'ንግድ 2026',
+    slide3Desc: 'ከምርጦቹ ይማሩ',
+    slide4Title: 'የስኬት ታሪኮች',
+    slide4Desc: 'የእሱ አካል ይሁኑ',
+    // Footer
+    empower: 'ዲጂታል ኤጀንሲዎችን ማበረታታት።',
+    quickLinks: 'ፈጣን አገናኞች',
+    home: 'መነሻ',
+    admin: 'አስተዳዳሪ',
+    eventInfo: 'የዝግጅት መረጃ',
+    connect: 'ያገናኙ',
+    privacy: 'ግላዊነት',
+    terms: 'ውሎች',
+    secure: 'ደህንነቱ',
+    rights: '© 2026 ድሪም ሞር. ሁሉም መብቶች የተጠበቁ ናቸው።',
+    backToHome: 'ወደ መነሻ ተመለስ',
+    // Event Date
+    eventDate: 'ሐምሌ 11, 2026',
+    eventLocation: 'ድሪም ሞር ዝግጅቶች',
+    eventTime: '8:00 (የአካባቢ ሰዓት)',
+  }
+};
+
 export default function Home() {
   const [usersCount, setUsersCount] = useState(0);
   const [showRegistration, setShowRegistration] = useState(false);
@@ -14,14 +132,21 @@ export default function Home() {
   const [showComments, setShowComments] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [language, setLanguage] = useState<'en' | 'am'>('en');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  const slides = [
-    { id: 1, src: '/logo.jpg', alt: 'DreamMore Logo', title: 'Welcom To DreamMore Event', description: 'Join us!' },
-    { id: 2, src: '/naky.webp', alt: 'Event Image 2', title: 'Naky Hotel', description: 'Connect with leaders' },
-    { id: 3, src: '/people-taking-part-business-event.jpg', alt: 'Business Event', title: 'Business 2026', description: 'Learn from the best' },
-    { id: 4, src: '/secuss.webp', alt: 'Success', title: 'Success Stories', description: 'Be part of it' }
+  const t = translations[language];
+
+  // Get current slides based on language
+  const getSlides = () => [
+    { id: 1, src: '/logo.jpg', alt: 'DreamMore Logo', title: t.slide1Title, description: t.slide1Desc },
+    { id: 2, src: '/naky.webp', alt: 'Event Image 2', title: t.slide2Title, description: t.slide2Desc },
+    { id: 3, src: '/people-taking-part-business-event.jpg', alt: 'Business Event', title: t.slide3Title, description: t.slide3Desc },
+    { id: 4, src: '/secuss.webp', alt: 'Success', title: t.slide4Title, description: t.slide4Desc }
   ];
+
+  const slides = getSlides();
 
   useEffect(() => {
     fetch('/api/admin/users')
@@ -53,7 +178,15 @@ export default function Home() {
     window.location.href = '/admin/dashboard';
   };
 
-  // If showing comments, render CommentsSection
+  const toggleLanguage = () => {
+    setLanguage(prev => prev === 'en' ? 'am' : 'en');
+  };
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  // If showing comments, render CommentsSection with language prop
   if (showComments) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50/30">
@@ -61,6 +194,7 @@ export default function Home() {
           isOpen={showAdminLogin}
           onClose={() => setShowAdminLogin(false)}
           onLoginSuccess={handleAdminLoginSuccess}
+          language={language}
         />
         <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -76,12 +210,12 @@ export default function Home() {
                 className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm"
               >
                 <i className="fas fa-arrow-left mr-2"></i>
-                Back to Home
+                {t.backToHome}
               </button>
             </div>
           </div>
         </header>
-        <CommentsSection />
+        <CommentsSection language={language} />
       </div>
     );
   }
@@ -92,81 +226,167 @@ export default function Home() {
         isOpen={showAdminLogin}
         onClose={() => setShowAdminLogin(false)}
         onLoginSuccess={handleAdminLoginSuccess}
+        language={language}
       />
 
+      {/* Navbar */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 md:py-4">
-          <div className="flex items-center justify-between gap-2">
-            {/* Left - Logo - Compact on mobile */}
-            <Link href="/" className="flex items-center gap-2 flex-shrink-0 min-w-0">
-              <div className="flex items-center gap-2">
-                <div className="w-10 h-10 md:w-14 md:h-14 rounded-xl flex items-center justify-center shadow-lg overflow-hidden flex-shrink-0">
-                  <Image 
-                    src="/logo.jpg" 
-                    alt="Logo" 
-                    width={56} 
-                    height={56}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div className="flex flex-col leading-tight min-w-0">
-                  <span className="text-base md:text-2xl font-extrabold text-gray-900 tracking-tight truncate">
-                    DreamMore
-                  </span>
-                  <span className="hidden xs:flex text-[8px] md:text-xs text-gray-500 tracking-wider items-center gap-1">
-                    <i className="fas fa-clock text-orange-500 text-[6px] md:text-[10px]"></i>
-                    Rightwork at right time
-                  </span>
-                </div>
+        <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 md:py-3">
+          <div className="flex items-center justify-between">
+            {/* Left - Logo */}
+            <Link href="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg overflow-hidden shadow-md flex-shrink-0">
+                <Image 
+                  src="/logo.jpg" 
+                  alt="Logo" 
+                  width={40} 
+                  height={40}
+                  className="object-cover w-full h-full"
+                />
               </div>
-              <span className="hidden sm:inline-block ml-1 bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[10px] font-medium">
-                <i className="fas fa-ticket-alt mr-1"></i>2026
-              </span>
+              <div className="flex flex-col">
+                <span className="text-sm sm:text-base md:text-xl font-extrabold text-gray-900 leading-tight">
+                  DreamMore
+                </span>
+                <span className="hidden sm:block text-[8px] md:text-[10px] text-gray-500 leading-tight">
+                  {t.rightwork}
+                </span>
+              </div>
             </Link>
 
-            {/* Center - Text - Hidden on mobile */}
-            <div className="hidden lg:block flex-1 text-center">
-              <span className="text-sm font-extrabold text-orange-600 tracking-wide">
-                Dream More Event Registration System
-              </span>
-            </div>
-
-            {/* Right - Buttons - Full visibility on mobile */}
-            <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
-              {/* Contact Button - NEW */}
-              <Link
-                href="/contact"
-                className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-1 sm:gap-2 transform hover:scale-105 whitespace-nowrap"
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center gap-2 lg:gap-3">
+              <button
+                onClick={toggleLanguage}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap"
               >
-                <span className="inline">📞 Contact</span>
+                {t.language}
+              </button>
+
+              <Link
+                href="https://www.dreammoredigitals.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap"
+              >
+                {t.website}
               </Link>
 
-              {/* Comment Button */}
+              <Link
+                href="/contact"
+                className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap"
+              >
+                {t.contact}
+              </Link>
+
               <button
                 onClick={() => setShowComments(true)}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 flex items-center gap-1 sm:gap-2 transform hover:scale-105 whitespace-nowrap"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap"
               >
-                <span className="inline">💬 Comment</span>
+                {t.comment}
               </button>
+
+              {/* Login Button */}
+              <Link
+                href="/login"
+                className="bg-green-50 hover:bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap flex items-center gap-1.5"
+              >
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                {t.login}
+              </Link>
               
-              {/* Register Button - Always visible */}
               <button
                 onClick={() => setShowRegistration(!showRegistration)}
-                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-[10px] sm:text-xs md:text-sm px-2.5 sm:px-4 md:px-6 py-1.5 sm:py-2 md:py-2.5 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-1 sm:gap-2 transform hover:scale-105 whitespace-nowrap"
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-xs px-4 py-1.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 whitespace-nowrap"
               >
-                <span className="inline">{showRegistration ? '✕ Close' : '📝 Register'}</span>
+                {showRegistration ? t.close : t.register}
               </button>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleMobileMenu}
+              className="md:hidden flex items-center gap-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs px-3 py-1.5 rounded-full transition-all duration-300"
+            >
+              <span>{isMobileMenuOpen ? '✕' : '☰'}</span>
+              <span>{t.menu}</span>
+            </button>
           </div>
+
+          {/* Mobile Dropdown Menu */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden mt-2 pb-2 border-t border-gray-100 pt-2 flex flex-col gap-1.5">
+              <button
+                onClick={() => {
+                  toggleLanguage();
+                  setIsMobileMenuOpen(false);
+                }}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-4 py-2 rounded-lg transition-all duration-300 text-left"
+              >
+                {t.language}
+              </button>
+
+              <Link
+                href="https://www.dreammoredigitals.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm px-4 py-2 rounded-lg transition-all duration-300"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {t.website}
+              </Link>
+
+              <Link
+                href="/contact"
+                className="bg-blue-50 hover:bg-blue-100 text-blue-700 text-sm px-4 py-2 rounded-lg transition-all duration-300"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {t.contact}
+              </Link>
+
+              <button
+                onClick={() => {
+                  setShowComments(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-4 py-2 rounded-lg transition-all duration-300 text-left"
+              >
+                {t.comment}
+              </button>
+
+              {/* Mobile Login Button */}
+              <Link
+                href="/login"
+                className="bg-green-50 hover:bg-green-100 text-green-700 text-sm px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                {t.login}
+              </Link>
+              
+              <button
+                onClick={() => {
+                  setShowRegistration(!showRegistration);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm px-4 py-2 rounded-lg shadow-md transition-all duration-300 text-left"
+              >
+                {showRegistration ? t.close : t.register}
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Rest of the content remains the same... */}
-      {/* Main Content with Left Text and Right Content */}
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 md:py-8">
         {showRegistration ? (
           <div className="py-4 md:py-8">
-            <RegistrationForm onSuccess={handleRegistrationSuccess} />
+            <RegistrationForm onSuccess={handleRegistrationSuccess} language={language} />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
@@ -174,15 +394,15 @@ export default function Home() {
             <div className="space-y-3 md:space-y-6 fade-in">
               <div className="text-center lg:text-left">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 mb-2">
-                  Welcome to{' '}
+                  {t.welcome}{' '}
                   <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">
-                    DreamMore
+                    {t.dreamMore}
                   </span>
                 </h1>
                 
                 <div className="mt-2 md:mt-4 mb-2">
                   <p className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 animate-pulse">
-                    ✨ Dream More Event Attendance ✨
+                    {t.eventAttendance}
                   </p>
                   <div className="flex justify-center lg:justify-start items-center gap-1 md:gap-2 mt-1 md:mt-2">
                     <span className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
@@ -196,7 +416,7 @@ export default function Home() {
                 </div>
                 
                 <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 max-w-3xl lg:max-w-full mx-auto lg:mx-0 font-medium">
-                  Digital Agency Event 2026
+                  {t.digitalAgency}
                 </p>
               </div>
 
@@ -207,12 +427,12 @@ export default function Home() {
                     <i className="fas fa-rocket text-orange-600 text-sm md:text-lg"></i>
                   </div>
                   <div>
-                    <h2 className="text-sm sm:text-base md:text-xl font-bold text-gray-900">About DreamMore</h2>
-                    <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-500">Empowering Digital Excellence</p>
+                    <h2 className="text-sm sm:text-base md:text-xl font-bold text-gray-900">{t.about}</h2>
+                    <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-500">{t.empowering}</p>
                   </div>
                 </div>
                 <p className="text-[10px] sm:text-xs md:text-sm text-gray-700 leading-relaxed">
-                  Dream More is a collaborative group of dynamic youth and active team members dedicated to education purpose, digital marketing, and a wide range of tech-related services. We prioritize a client-centred approach, supported by our versatile service offerings and an unwavering commitment to quality. With a focus on reliability, trust, and continuous innovation, our dedicated team adapts to meet the evolving demands of every client, ensuring that we consistently exceed expectations.
+                  {t.aboutText}
                 </p>
               </div>
 
@@ -220,40 +440,40 @@ export default function Home() {
               <div className="bg-gradient-to-br from-white to-orange-50/50 rounded-2xl md:rounded-3xl shadow-xl p-3 sm:p-4 md:p-6 border border-orange-100/50">
                 <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3 flex items-center gap-2">
                   <i className="fas fa-list-check text-orange-500"></i>
-                  Event Highlights
+                  {t.highlights}
                 </h3>
                 <ul className="space-y-1.5 md:space-y-2">
                   <li className="flex items-start gap-2 text-[10px] sm:text-xs md:text-sm text-gray-700">
                     <i className="fas fa-check-circle text-orange-500 mt-0.5 text-xs md:text-sm"></i>
-                    <span>Network with industry leaders and professionals</span>
+                    <span>{t.highlight1}</span>
                   </li>
                   <li className="flex items-start gap-2 text-[10px] sm:text-xs md:text-sm text-gray-700">
                     <i className="fas fa-check-circle text-orange-500 mt-0.5 text-xs md:text-sm"></i>
-                    <span>Learn from top digital marketing experts</span>
+                    <span>{t.highlight2}</span>
                   </li>
                   <li className="flex items-start gap-2 text-[10px] sm:text-xs md:text-sm text-gray-700">
                     <i className="fas fa-check-circle text-orange-500 mt-0.5 text-xs md:text-sm"></i>
-                    <span>Explore innovative tech solutions and trends</span>
+                    <span>{t.highlight3}</span>
                   </li>
                   <li className="flex items-start gap-2 text-[10px] sm:text-xs md:text-sm text-gray-700">
                     <i className="fas fa-check-circle text-orange-500 mt-0.5 text-xs md:text-sm"></i>
-                    <span>Connect with like-minded professionals</span>
+                    <span>{t.highlight4}</span>
                   </li>
                   <li className="flex items-start gap-2 text-[10px] sm:text-xs md:text-sm text-gray-700">
                     <i className="fas fa-check-circle text-orange-500 mt-0.5 text-xs md:text-sm"></i>
-                    <span>Gain valuable insights for business growth</span>
+                    <span>{t.highlight5}</span>
                   </li>
                 </ul>
               </div>
 
-              {/* Mobile Register Button - Visible only on mobile */}
+              {/* Mobile Register Button */}
               <div className="lg:hidden">
                 <button
                   onClick={() => setShowRegistration(true)}
                   className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-sm sm:text-base px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 transform hover:scale-105"
                 >
                   <span>🎫</span>
-                  Register Now for Event 2026
+                  {t.registerNow}
                 </button>
               </div>
             </div>
@@ -341,13 +561,13 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end">
                   <div className="p-3 md:p-4 text-white w-full">
                     <h3 className="text-xs sm:text-sm md:text-lg font-bold drop-shadow-lg">DreamMore Event 2026</h3>
-                    <p className="text-[8px] sm:text-[10px] md:text-sm text-white/90 drop-shadow-lg">Join us for an unforgettable experience</p>
+                    <p className="text-[8px] sm:text-[10px] md:text-sm text-white/90 drop-shadow-lg">{t.joinUs}</p>
                     <button
                       onClick={() => setShowRegistration(true)}
                       className="mt-1 md:mt-2 bg-orange-500 hover:bg-orange-600 text-white text-[8px] sm:text-[10px] md:text-xs px-2 sm:px-3 md:px-5 py-1 md:py-2 rounded-full transition-all duration-300 flex items-center gap-1 sm:gap-2 transform hover:scale-105"
                     >
                       <span>🎫</span>
-                      <span>Register Now</span>
+                      <span>{t.registerNowShort}</span>
                     </button>
                   </div>
                 </div>
@@ -374,25 +594,27 @@ export default function Home() {
                 </div>
                 <div>
                   <span className="text-xs md:text-sm font-bold text-white">DreamMore</span>
-                  <span className="block text-[6px] md:text-[8px] text-white/80">Rightwork at right time</span>
+                  <span className="block text-[6px] md:text-[8px] text-white/80">
+                    {t.rightwork}
+                  </span>
                 </div>
               </div>
-              <p className="text-[7px] md:text-[10px] text-white/80">Empower digital agencies.</p>
+              <p className="text-[7px] md:text-[10px] text-white/80">{t.empower}</p>
             </div>
 
             <div>
-              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">Quick Links</h4>
+              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">{t.quickLinks}</h4>
               <ul className="space-y-0.5 text-[7px] md:text-[10px]">
                 <li>
                   <Link href="/" className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5">
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
-                    Home
+                    {t.home}
                   </Link>
                 </li>
                 <li>
                   <Link href="/contact" className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5">
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
-                    Contact
+                    {t.contact}
                   </Link>
                 </li>
                 <li>
@@ -401,7 +623,7 @@ export default function Home() {
                     className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5"
                   >
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
-                    Admin
+                    {t.admin}
                   </button>
                 </li>
                 <li>
@@ -410,32 +632,32 @@ export default function Home() {
                     className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5"
                   >
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
-                    Register
+                    {t.register}
                   </button>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">Event Info</h4>
+              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">{t.eventInfo}</h4>
               <ul className="space-y-0.5 text-[7px] md:text-[10px] text-white/80">
                 <li className="flex items-center gap-0.5">
                   <i className="fas fa-calendar text-white/60 w-2 text-[5px]"></i>
-                  <span>July 11, 2026</span>
+                  <span>{t.eventDate}</span>
                 </li>
                 <li className="flex items-center gap-0.5">
                   <i className="fas fa-map-marker-alt text-white/60 w-2 text-[5px]"></i>
-                  <span>DreamMore Events</span>
+                  <span>{t.eventLocation}</span>
                 </li>
                 <li className="flex items-center gap-0.5">
                   <i className="fas fa-clock text-white/60 w-2 text-[5px]"></i>
-                  <span>8:00 (local Time)</span>
+                  
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">Connect</h4>
+              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">{t.connect}</h4>
               <div className="flex gap-1.5">
                 <a href="https://t.me/Dreammore21" target="_blank" rel="noopener noreferrer" className="w-5 h-5 md:w-6 md:h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors text-white text-[7px] md:text-[8px]">
                   <i className="fab fa-telegram-plane"></i>
@@ -451,13 +673,13 @@ export default function Home() {
           </div>
 
           <div className="border-t border-white/20 mt-1.5 pt-1.5 flex flex-col sm:flex-row justify-between items-center gap-1">
-            <p className="text-[6px] md:text-[8px] text-white/80">© 2026 DreamMore. All rights reserved.</p>
+            <p className="text-[6px] md:text-[8px] text-white/80">{t.rights}</p>
             <div className="flex items-center gap-2 md:gap-3 text-[6px] md:text-[8px] text-white/80">
-              <Link href="#" className="hover:text-white transition-colors">Privacy</Link>
-              <Link href="#" className="hover:text-white transition-colors">Terms</Link>
+              <Link href="#" className="hover:text-white transition-colors">{t.privacy}</Link>
+              <Link href="#" className="hover:text-white transition-colors">{t.terms}</Link>
               <span className="flex items-center gap-0.5">
                 <i className="fas fa-shield-alt text-white/60 text-[5px] md:text-[6px]"></i>
-                Secure
+                {t.secure}
               </span>
             </div>
           </div>
@@ -480,18 +702,6 @@ export default function Home() {
           50% { transform: translateY(-6px); }
         }
         .animate-bounce { animation: bounce 1s infinite; }
-        
-        /* Custom breakpoint for extra small screens */
-        @media (min-width: 480px) {
-          .xs\\:flex { display: flex; }
-          .xs\\:inline { display: inline; }
-          .xs\\:hidden { display: none; }
-        }
-        @media (max-width: 479px) {
-          .xs\\:flex { display: none; }
-          .xs\\:inline { display: none; }
-          .xs\\:hidden { display: inline; }
-        }
       `}</style>
     </div>
   );

@@ -6,10 +6,32 @@ export async function POST(request: NextRequest) {
   
   try {
     const body = await request.json();
-    const { firstName, lastName, email, phone, address, gender, course, experience } = body;
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      phone, 
+      address, 
+      gender, 
+      course, 
+      serviceId,
+      userType,
+      organization,
+      experience 
+    } = body;
 
     console.log('📝 Registration data:', { 
-      firstName, lastName, email, phone, address, gender, course: course || 'None', experience 
+      firstName, 
+      lastName, 
+      email, 
+      phone, 
+      address, 
+      gender, 
+      course: course || 'None',
+      serviceId: serviceId || 'None',
+      userType,
+      organization: organization || 'None',
+      experience 
     });
 
     // Validation - First Name (only letters)
@@ -78,19 +100,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ===== REMOVED: Course validation - Now OPTIONAL =====
-    // if (!course || !course.trim()) {
-    //   return NextResponse.json(
-    //     { message: 'Please select a course' },
-    //     { status: 400 }
-    //   );
-    // }
+    // Validation - User Type (required)
+    if (!userType || !userType.trim()) {
+      return NextResponse.json(
+        { message: 'Please select user type' },
+        { status: 400 }
+      );
+    }
 
     client = await pool.connect();
-    
+
     // Check if phone number already exists
     const checkPhone = await client.query(
-      'SELECT id FROM users WHERE phone = $1',
+      'SELECT id FROM service_users WHERE phone = $1',
       [phone]
     );
     
@@ -105,7 +127,7 @@ export async function POST(request: NextRequest) {
     // Check if email already exists (if provided)
     if (email && email.trim()) {
       const checkEmail = await client.query(
-        'SELECT id FROM users WHERE email = $1',
+        'SELECT id FROM service_users WHERE email = $1',
         [email.trim()]
       );
       
@@ -118,28 +140,131 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Insert new user - Course is optional (send empty string if not provided)
-    const courseValue = course && course.trim() && course !== 'none' ? course.trim() : '';
-    
-    const result = await client.query(
-      `INSERT INTO users (first_name, last_name, email, phone, address, gender, course, experience, registered_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, CURRENT_TIMESTAMP) 
-       RETURNING id`,
-      [firstName.trim(), lastName.trim(), email?.trim() || null, phone.trim(), address.trim(), gender, courseValue, experience?.trim() || '']
-    );
-    
-    client.release();
+    let result;
+    let userId;
 
-    console.log('✅ User registered successfully with course:', courseValue || 'None');
+    if (userType === 'student') {
+      // ===== STUDENT REGISTRATION =====
+      // Insert only into users table
+      const courseValue = course && course.trim() && course !== 'none' ? course.trim() : '';
+      
+      result = await client.query(
+        `INSERT INTO users (first_name, last_name, email, phone, address, gender, course, experience, user_type, registered_at) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP) 
+         RETURNING id`,
+        [
+          firstName.trim(), 
+          lastName.trim(), 
+          email?.trim() || null, 
+          phone.trim(), 
+          address.trim(), 
+          gender, 
+          courseValue, 
+          experience?.trim() || '',
+          'student'
+        ]
+      );
+      
+      userId = result.rows[0].id;
+      
+      console.log('✅ Student registered successfully with ID:', userId);
 
-    return NextResponse.json(
-      { 
-        success: true,
-        message: 'Registration successful! Welcome to DreamMore!', 
-        userId: result.rows[0].id 
-      },
-      { status: 201 }
-    );
+      client.release();
+
+      return NextResponse.json(
+        { 
+          success: true,
+          message: 'Student registration successful! Welcome to DreamMore!', 
+          userId: userId,
+          userType: 'student'
+        },
+        { status: 201 }
+      );
+
+    } else if (userType === 'service') {
+      // ===== SERVICE USER REGISTRATION =====
+      
+      // Validate service selection
+      if (!serviceId || serviceId === 'none') {
+        client.release();
+        return NextResponse.json(
+          { message: 'Please select a service' },
+          { status: 400 }
+        );
+      }
+
+      // Validate organization for service users
+      if (!organization || !organization.trim()) {
+        client.release();
+        return NextResponse.json(
+          { message: 'Organization name is required for service users' },
+          { status: 400 }
+        );
+      }
+
+      // Get the service details from the services table
+      const serviceResult = await client.query(
+        'SELECT name, category, id FROM services WHERE id = $1',
+        [parseInt(serviceId)]
+      );
+
+      if (!serviceResult.rows || serviceResult.rows.length === 0) {
+        client.release();
+        return NextResponse.json(
+          { message: 'Selected service not found' },
+          { status: 400 }
+        );
+      }
+
+      const serviceName = serviceResult.rows[0].name;
+      const serviceCategory = serviceResult.rows[0].category;
+      const serviceIdNum = serviceResult.rows[0].id;
+
+      // Insert into service_users table with organization field
+      result = await client.query(
+        `INSERT INTO service_users (user_id, first_name, last_name, email, phone, address, gender, course, organization, experience, status, registered_at) 
+         VALUES (NULL, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP) 
+         RETURNING id`,
+        [
+          firstName.trim(), 
+          lastName.trim(), 
+          email?.trim() || null, 
+          phone.trim(), 
+          address.trim(), 
+          gender, 
+          serviceName, // Store the service name in course field
+          organization.trim(), // Add organization
+          experience?.trim() || '',
+          'active'
+        ]
+      );
+      
+      const serviceUserId = result.rows[0].id;
+
+      console.log('✅ Service user registered successfully with ID:', serviceUserId, 'Service:', serviceName, 'Category:', serviceCategory, 'Organization:', organization);
+
+      client.release();
+
+      return NextResponse.json(
+        { 
+          success: true,
+          message: `Service user registration successful! Welcome to DreamMore!`, 
+          serviceUserId: serviceUserId,
+          serviceName: serviceName,
+          serviceCategory: serviceCategory,
+          organization: organization,
+          userType: 'service'
+        },
+        { status: 201 }
+      );
+
+    } else {
+      client.release();
+      return NextResponse.json(
+        { message: 'Invalid user type selected' },
+        { status: 400 }
+      );
+    }
     
   } catch (error) {
     console.error('❌ Registration error:', error);

@@ -1,4 +1,3 @@
-// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,21 +6,80 @@ datasource db {
   provider = "postgresql"
 }
 
+// Regular User model (students, admins, etc.)
 model User {
   id           Int      @id @default(autoincrement())
-  firstName    String   @map("first_name") @db.VarChar(100)
-  lastName     String   @map("last_name") @db.VarChar(100)
-  email        String?  @db.VarChar(255)
-  phone        String   @unique @db.VarChar(20)
-  address      String   @db.Text
+  firstName    String?  @map("first_name") @db.VarChar(100)
+  lastName     String?  @map("last_name") @db.VarChar(100)
+  email        String   @unique @db.VarChar(255)
+  phone        String?  @db.VarChar(20)
+  address      String?  @db.Text
   gender       String?  @db.VarChar(20)
-  course       String   @db.VarChar(255)
+  course       String?  @db.VarChar(255)
   experience   String?  @db.Text
+  status       String?  @default("active") @db.VarChar(20)
+  userType     String?  @default("student") @map("user_type") @db.VarChar(50)
   registeredAt DateTime @default(now()) @map("registered_at")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
+  // Relationships
+  userCourses  UserCourse[]
+  serviceUser  ServiceUser? // One-to-one with ServiceUser
+
   @@map("users")
+}
+
+// Service model
+model Service {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique @db.VarChar(255)
+  description  String?  @db.Text
+  category     String   @db.VarChar(100)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("services")
+}
+
+// Service User model (separate table)
+model ServiceUser {
+  id           Int      @id @default(autoincrement())
+  userId       Int?     @unique @map("user_id") // Can be NULL for standalone service users
+  firstName    String?  @map("first_name") @db.VarChar(100)
+  lastName     String?  @map("last_name") @db.VarChar(100)
+  email        String   @unique @db.VarChar(255)
+  phone        String?  @db.VarChar(20)
+  address      String?  @db.Text
+  gender       String?  @db.VarChar(20)
+  course       String?  @db.VarChar(255)
+  organization String?  @db.VarChar(255) // Organization field for service users
+  experience   String?  @db.Text
+  status       String?  @default("pending") @db.VarChar(20)
+  registeredAt DateTime @default(now()) @map("registered_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  
+  // Relationship back to User (optional)
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Service user courses (many-to-many)
+  serviceUserCourses ServiceUserCourse[]
+
+  @@map("service_users")
+}
+
+// Service User Courses junction table
+model ServiceUserCourse {
+  serviceUserId Int      @map("service_user_id")
+  courseId      Int      @map("course_id")
+  enrolledAt    DateTime @default(now()) @map("enrolled_at")
+  
+  serviceUser   ServiceUser @relation(fields: [serviceUserId], references: [id], onDelete: Cascade)
+  course        Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([serviceUserId, courseId])
+  @@map("service_user_courses")
 }
 
 model Admin {
@@ -33,13 +91,70 @@ model Admin {
   @@map("admins")
 }
 
-// UPDATED: Comments are now independent - NO userId required
 model Comment {
   id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(255)     // Commenter's name
-  email     String?  @db.VarChar(255)     // Commenter's email (optional)
+  name      String   @db.VarChar(255)
+  email     String?  @db.VarChar(255)
   comment   String   @db.Text
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("comments")
+}
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(255)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  // Relationships
+  userCourses          UserCourse[]
+  serviceUserCourses   ServiceUserCourse[]
+
+  @@map("courses")
+}
+
+// Junction table for User-Course Many-to-Many relationship
+model UserCourse {
+  userId    Int      @map("user_id")
+  courseId  Int      @map("course_id")
+  enrolledAt DateTime @default(now()) @map("enrolled_at")
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([userId, courseId])
+  @@map("user_courses")
+}
+
+// Broadcast Log model with image support
+model BroadcastLog {
+  id                Int      @id @default(autoincrement())
+  subject           String   @db.VarChar(255)
+  message           String   @db.Text
+  courseFilter      String?  @map("course_filter") @db.VarChar(100)
+  recipientCount    Int      @map("recipient_count")
+  sentCount         Int      @map("sent_count")
+  failedEmails      String?  @map("failed_emails") @db.Text
+  totalEmails       Int      @map("total_emails")
+  fromDatabase      Int      @map("from_database")
+  fromExcel         Int      @map("from_excel")
+  duplicatesRemoved Int      @map("duplicates_removed")
+  
+  // PDF Attachment
+  pdfAttached       Boolean  @default(false) @map("pdf_attached")
+  pdfName           String?  @map("pdf_name") @db.VarChar(255)
+  
+  // Image Attachment (NEW)
+  imageAttached     Boolean  @default(false) @map("image_attached")
+  imageName         String?  @map("image_name") @db.VarChar(255)
+  imageUrl          String?  @map("image_url") @db.Text
+  
+  // Target Information
+  targetType        String?  @default("users") @map("target_type") @db.VarChar(50)
+  targetFilter      String?  @map("target_filter") @db.VarChar(255)
+  
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("broadcast_logs")
 }

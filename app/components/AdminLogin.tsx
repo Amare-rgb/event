@@ -7,13 +7,42 @@ interface AdminLoginProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginSuccess: () => void;
+  language?: 'en' | 'am';
 }
 
-export default function AdminLogin({ isOpen, onClose, onLoginSuccess }: AdminLoginProps) {
+// Translations
+const translations = {
+  en: {
+    adminLogin: 'Admin Login',
+    enterCredentials: 'Enter your credentials',
+    emailPlaceholder: 'admin@dreammore.com',
+    passwordPlaceholder: 'Password',
+    login: 'Login',
+    loggingIn: 'Logging in...',
+    secureAccess: 'Secure admin access',
+    invalidCredentials: 'Invalid credentials',
+    loginFailed: 'Login failed. Please try again.',
+  },
+  am: {
+    adminLogin: 'የአስተዳዳሪ መግቢያ',
+    enterCredentials: 'የመግቢያ መረጃዎን ያስገቡ',
+    emailPlaceholder: 'admin@dreammore.com',
+    passwordPlaceholder: 'የይለፍ ቃል',
+    login: 'ግባ',
+    loggingIn: 'እየገባ ነው...',
+    secureAccess: 'ደህንነቱ የተጠበቀ የአስተዳዳሪ መግቢያ',
+    invalidCredentials: 'የተሳሳተ መረጃ',
+    loginFailed: 'መግቢያ አልተሳካም። እባክዎ እንደገና ይሞክሩ።',
+  }
+};
+
+export default function AdminLogin({ isOpen, onClose, onLoginSuccess, language = 'en' }: AdminLoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const t = translations[language];
 
   if (!isOpen) return null;
 
@@ -31,10 +60,10 @@ export default function AdminLogin({ isOpen, onClose, onLoginSuccess }: AdminLog
       if (res.ok) {
         onLoginSuccess();
       } else {
-        setError(data.message || 'Invalid credentials');
+        setError(data.message || t.invalidCredentials);
       }
     } catch {
-      setError('Login failed. Please try again.');
+      setError(t.loginFailed);
     } finally {
       setIsLoading(false);
     }
@@ -53,8 +82,8 @@ export default function AdminLogin({ isOpen, onClose, onLoginSuccess }: AdminLog
           </div>
         </div>
 
-        <h2 className="text-xl font-bold text-center text-gray-900">Admin Login</h2>
-        <p className="text-xs text-center text-gray-500 mb-4">Enter your credentials</p>
+        <h2 className="text-xl font-bold text-center text-gray-900">{t.adminLogin}</h2>
+        <p className="text-xs text-center text-gray-500 mb-4">{t.enterCredentials}</p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
@@ -63,7 +92,7 @@ export default function AdminLogin({ isOpen, onClose, onLoginSuccess }: AdminLog
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-              placeholder="admin@dreammore.com"
+              placeholder={t.emailPlaceholder}
               required
             />
           </div>
@@ -74,7 +103,7 @@ export default function AdminLogin({ isOpen, onClose, onLoginSuccess }: AdminLog
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-              placeholder="Password"
+              placeholder={t.passwordPlaceholder}
               required
             />
           </div>
@@ -92,15 +121,15 @@ export default function AdminLogin({ isOpen, onClose, onLoginSuccess }: AdminLog
             className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-2 rounded-lg font-semibold transition disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
             {isLoading ? (
-              <><i className="fas fa-spinner fa-spin"></i>Logging in...</>
+              <><i className="fas fa-spinner fa-spin"></i>{t.loggingIn}</>
             ) : (
-              <><i className="fas fa-sign-in-alt"></i>Login</>
+              <><i className="fas fa-sign-in-alt"></i>{t.login}</>
             )}
           </button>
         </form>
 
         <p className="text-center text-[10px] text-gray-400 mt-3">
-          <i className="fas fa-shield-alt text-orange-500 mr-1"></i>Secure admin access
+          <i className="fas fa-shield-alt text-orange-500 mr-1"></i>{t.secureAccess}
         </p>
       </div>
 

@@ -1,4 +1,3 @@
-// app/components/CommentsSection.tsx
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -11,7 +10,55 @@ interface Comment {
   created_at: string;
 }
 
-export default function CommentsSection() {
+interface CommentsSectionProps {
+  language?: 'en' | 'am';
+}
+
+// Translations
+const translations = {
+  en: {
+    comments: 'Comments',
+    shareThoughts: 'Share your thoughts',
+    leaveComment: 'Leave a Comment',
+    yourName: 'Your Name *',
+    yourEmail: 'Your Email *',
+    writeComment: 'Write a comment...',
+    post: 'Post',
+    loading: 'Loading comments...',
+    noComments: 'No comments yet. Be the first!',
+    addSuccess: 'Comment added successfully!',
+    addFailed: 'Failed to add comment',
+    pleaseFill: 'Please fill in name, email and comment',
+    minLength: 'Comment must be at least 3 characters long',
+    refresh: 'Refresh comments',
+    unknownUser: 'Unknown User',
+    errorLoading: 'Failed to load comments. Please refresh the page.',
+    errorAdding: 'Error adding comment. Please try again.',
+    invalidEmail: 'Please enter a valid email address',
+  },
+  am: {
+    comments: 'አስተያየቶች',
+    shareThoughts: 'ሀሳብዎን ያጋሩ',
+    leaveComment: 'አስተያየት ይስጡ',
+    yourName: 'ስምዎ *',
+    yourEmail: 'ኢሜልዎ *',
+    writeComment: 'አስተያየት ይጻፉ...',
+    post: 'ላክ',
+    loading: 'አስተያየቶችን በማግኘት ላይ...',
+    noComments: 'እስካሁን አስተያየት የለም። የመጀመሪያ ይሁኑ!',
+    addSuccess: 'አስተያየት በተሳካ ሁኔታ ተጨምሯል!',
+    addFailed: 'አስተያየት መጨመር አልተሳካም',
+    pleaseFill: 'እባክዎ ስም፣ ኢሜይል እና አስተያየት ይሙሉ',
+    minLength: 'አስተያየት ቢያንስ 3 ፊደላት ረዥም መሆን አለበት',
+    refresh: 'አስተያየቶችን ያድሱ',
+    unknownUser: 'ያልታወቀ ተጠቃሚ',
+    errorLoading: 'አስተያየቶችን መጫን አልተሳካም። እባክዎ ገፁን ያድሱ።',
+    errorAdding: 'አስተያየት በመጨመር ላይ ችግር ተፈጥሯል። እባክዎ እንደገና ይሞክሩ።',
+    invalidEmail: 'እባክዎ ትክክለኛ ኢሜይል ያስገቡ',
+  }
+};
+
+export default function CommentsSection({ language = 'en' }: CommentsSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [userName, setUserName] = useState('');
@@ -20,6 +67,8 @@ export default function CommentsSection() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  const t = translations[language];
 
   // Wrap fetchComments in useCallback to prevent unnecessary re-renders
   const fetchComments = useCallback(async () => {
@@ -36,32 +85,41 @@ export default function CommentsSection() {
       setError('');
     } catch (error) {
       console.error('Error fetching comments:', error);
-      setError('Failed to load comments. Please refresh the page.');
+      setError(t.errorLoading);
       setComments([]);
     } finally {
       setIsInitialLoading(false);
     }
-  }, []);
+  }, [t]);
 
   // Load comments on mount
   useEffect(() => {
-  const loadData = async () => {
-    await fetchComments();
+    const loadData = async () => {
+      await fetchComments();
+    };
+    
+    loadData();
+  }, [fetchComments]);
+
+  const validateEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
-  
-  loadData();
-}, [fetchComments]); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!userName.trim() || !newComment.trim()) {
-      setError('Please fill in name and comment');
+    if (!userName.trim() || !userEmail.trim() || !newComment.trim()) {
+      setError(t.pleaseFill);
+      return;
+    }
+
+    if (!validateEmail(userEmail.trim())) {
+      setError(t.invalidEmail);
       return;
     }
 
     if (newComment.trim().length < 3) {
-      setError('Comment must be at least 3 characters long');
+      setError(t.minLength);
       return;
     }
 
@@ -76,14 +134,14 @@ export default function CommentsSection() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: userName.trim(),
-          email: userEmail.trim() || null,
+          email: userEmail.trim(),
           comment: newComment.trim(),
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        setError(errorData.message || 'Failed to add comment');
+        setError(errorData.message || t.addFailed);
         setIsLoading(false);
         return;
       }
@@ -93,7 +151,8 @@ export default function CommentsSection() {
       if (data.success) {
         // Clear form
         setNewComment('');
-        setSuccess('Comment added successfully!');
+        setUserEmail('');
+        setSuccess(t.addSuccess);
         
         // Refresh comments - IMPORTANT: Wait for fetch to complete
         await fetchComments();
@@ -101,11 +160,11 @@ export default function CommentsSection() {
         // Clear success message after 3 seconds
         setTimeout(() => setSuccess(''), 3000);
       } else {
-        setError(data.message || 'Failed to add comment');
+        setError(data.message || t.addFailed);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('Error adding comment. Please try again.');
+      setError(t.errorAdding);
     } finally {
       setIsLoading(false);
     }
@@ -113,7 +172,7 @@ export default function CommentsSection() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString(language === 'en' ? 'en-US' : 'am-ET', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -127,7 +186,7 @@ export default function CommentsSection() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="bg-white rounded-xl shadow-lg p-6 text-center">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600 mx-auto"></div>
-          <p className="text-gray-500 mt-2">Loading comments...</p>
+          <p className="text-gray-500 mt-2">{t.loading}</p>
         </div>
       </div>
     );
@@ -145,8 +204,8 @@ export default function CommentsSection() {
               </svg>
             </div>
             <div>
-              <h3 className="text-base md:text-lg font-bold text-gray-900">Comments</h3>
-              <p className="text-[10px] text-gray-500">Share your thoughts</p>
+              <h3 className="text-base md:text-lg font-bold text-gray-900">{t.comments}</h3>
+              <p className="text-[10px] text-gray-500">{t.shareThoughts}</p>
             </div>
             <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full text-[10px] font-semibold">
               {comments.length}
@@ -156,7 +215,7 @@ export default function CommentsSection() {
           <button
             onClick={fetchComments}
             className="text-gray-400 hover:text-orange-500 transition-colors text-sm p-1"
-            title="Refresh comments"
+            title={t.refresh}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -166,14 +225,14 @@ export default function CommentsSection() {
 
         {/* Add Comment Form */}
         <div className="bg-gradient-to-br from-gray-50 to-orange-50/30 rounded-lg p-3 md:p-4 mb-3">
-          <h4 className="text-xs font-semibold text-gray-700 mb-2">Leave a Comment</h4>
+          <h4 className="text-xs font-semibold text-gray-700 mb-2">{t.leaveComment}</h4>
           <form onSubmit={handleSubmit} className="space-y-2">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 type="text"
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
-                placeholder="Your Name *"
+                placeholder={t.yourName}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 required
               />
@@ -181,8 +240,9 @@ export default function CommentsSection() {
                 type="email"
                 value={userEmail}
                 onChange={(e) => setUserEmail(e.target.value)}
-                placeholder="Your Email (optional)"
+                placeholder={t.yourEmail}
                 className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                required
               />
             </div>
             <div className="flex gap-2">
@@ -190,7 +250,7 @@ export default function CommentsSection() {
                 type="text"
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
-                placeholder="Write a comment..."
+                placeholder={t.writeComment}
                 className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 disabled={isLoading}
                 required
@@ -207,7 +267,7 @@ export default function CommentsSection() {
                     <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
                   </svg>
                 )}
-                <span className="hidden xs:inline">Post</span>
+                <span className="hidden xs:inline">{t.post}</span>
               </button>
             </div>
             {error && <p className="text-red-500 text-[10px]">{error}</p>}
@@ -222,7 +282,7 @@ export default function CommentsSection() {
               <svg className="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              No comments yet. Be the first!
+              {t.noComments}
             </div>
           ) : (
             comments.map((comment) => (
@@ -237,7 +297,7 @@ export default function CommentsSection() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-sm font-semibold text-gray-900">
-                        {comment.name || 'Unknown User'}
+                        {comment.name || t.unknownUser}
                       </span>
                       {comment.email && (
                         <span className="text-[10px] text-gray-400">
