@@ -53,7 +53,6 @@ const translations = {
     empower: 'Empower digital agencies.',
     quickLinks: 'Quick Links',
     home: 'Home',
-    admin: 'Admin',
     eventInfo: 'Event Info',
     connect: 'Connect',
     privacy: 'Privacy',
@@ -64,7 +63,6 @@ const translations = {
     // Event Date
     eventDate: 'July 11, 2026',
     eventLocation: 'DreamMore Events',
-  
   },
   am: {
     // Navbar
@@ -110,7 +108,6 @@ const translations = {
     empower: 'ዲጂታል ኤጀንሲዎችን ማበረታታት።',
     quickLinks: 'ፈጣን አገናኞች',
     home: 'መነሻ',
-    admin: 'አስተዳዳሪ',
     eventInfo: 'የዝግጅት መረጃ',
     connect: 'ያገናኙ',
     privacy: 'ግላዊነት',
@@ -136,7 +133,38 @@ export default function Home() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
 
+  // Triple-click detection for footer logo
+  const [clickCount, setClickCount] = useState(0);
+  const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null);
+
   const t = translations[language];
+
+  // Handle triple click on footer logo - Opens AdminLogin modal
+  const handleFooterLogoClick = () => {
+    setClickCount((prev) => prev + 1);
+
+    // Reset click count if more than 3 clicks
+    if (clickCount >= 2) { // Changed to 2 because we're counting from 0
+      setClickCount(0);
+      if (clickTimer) {
+        clearTimeout(clickTimer);
+        setClickTimer(null);
+      }
+      // Open Admin Login modal instead of redirecting
+      setShowAdminLogin(true);
+      return;
+    }
+
+    // Set timer to reset click count if no more clicks
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+    }
+    const timer = setTimeout(() => {
+      setClickCount(0);
+      setClickTimer(null);
+    }, 800);
+    setClickTimer(timer);
+  };
 
   // Get current slides based on language
   const getSlides = () => [
@@ -582,8 +610,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 md:py-3">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-1.5 mb-0.5">
-                <div className="w-6 h-6 rounded-lg overflow-hidden bg-white/20">
+              {/* Footer Logo with Triple Click Handler - Opens AdminLogin modal */}
+              <div 
+                className="flex items-center gap-1.5 mb-0.5 cursor-pointer group"
+                onClick={handleFooterLogoClick}
+                title="Triple-click to open Admin Login"
+              >
+                <div className="w-6 h-6 rounded-lg overflow-hidden bg-white/20 group-hover:bg-white/30 transition-all duration-300">
                   <Image 
                     src="/logo.jpg" 
                     alt="DM" 
@@ -593,7 +626,9 @@ export default function Home() {
                   />
                 </div>
                 <div>
-                  <span className="text-xs md:text-sm font-bold text-white">DreamMore</span>
+                  <span className="text-xs md:text-sm font-bold text-white group-hover:text-orange-200 transition-colors duration-300">
+                    DreamMore
+                  </span>
                   <span className="block text-[6px] md:text-[8px] text-white/80">
                     {t.rightwork}
                   </span>
@@ -616,15 +651,6 @@ export default function Home() {
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
                     {t.contact}
                   </Link>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => setShowAdminLogin(true)}
-                    className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5"
-                  >
-                    <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
-                    {t.admin}
-                  </button>
                 </li>
                 <li>
                   <button 
@@ -651,7 +677,6 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-0.5">
                   <i className="fas fa-clock text-white/60 w-2 text-[5px]"></i>
-                  
                 </li>
               </ul>
             </div>
