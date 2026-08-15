@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import type { PoolClient } from '@neondatabase/serverless';
 
 interface UserRow {
   id: number;
@@ -137,7 +138,7 @@ export async function GET(request: NextRequest) {
 
 // ===== POST HANDLER =====
 export async function POST(request: NextRequest) {
-  let client;
+  let client: PoolClient | undefined;
 
   try {
     const body = await request.json();
@@ -286,7 +287,7 @@ export async function POST(request: NextRequest) {
 
 // ===== DELETE HANDLER =====
 export async function DELETE(request: NextRequest) {
-  let client;
+  let client: PoolClient | undefined;
 
   try {
     const url = new URL(request.url);
