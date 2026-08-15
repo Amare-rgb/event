@@ -1,7 +1,9 @@
+// app/api/admin/import-users/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import * as XLSX from 'xlsx';
-import { PoolClient } from 'pg';
+import { PoolClient } from '@neondatabase/serverless'; // Fixed: import from Neon, not pg
 
 // Define types
 interface ExcelRow {

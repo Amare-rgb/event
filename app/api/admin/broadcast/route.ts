@@ -4,10 +4,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import pool from '@/lib/db';
 import * as XLSX from 'xlsx';
-import { PoolClient } from 'pg';
 import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { existsSync } from 'fs';
+
+// Import PoolClient type from Neon (since you're using @neondatabase/serverless)
+import type { PoolClient } from '@neondatabase/serverless';
 
 // ============ Types ============
 interface EmailRow {
@@ -807,5 +809,9 @@ For support: support@dreammoredigitals.com
       { error: 'An unexpected error occurred' },
       { status: 500 }
     );
+  } finally {
+    if (client) {
+      client.release();
+    }
   }
 }
