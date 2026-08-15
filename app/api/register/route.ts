@@ -1,90 +1,100 @@
+// app/api/register/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
-import pool from '@/lib/db';
+import pool, { initDatabase } from '@/lib/db';
+import { PoolClient } from '@neondatabase/serverless';
+
+// Define error type
+interface DatabaseError {
+  code?: string;
+  detail?: string;
+  message: string;
+  stack?: string;
+}
 
 export async function POST(request: NextRequest) {
-  let client;
-  
+  let client: PoolClient | null = null;
+
   try {
+    // 0. Database tables መኖራቸውን ማረጋገጥ
+    if (typeof initDatabase === 'function') {
+      await initDatabase();
+    }
+
     const body = await request.json();
-    const { 
-      firstName, 
-      lastName, 
-      email, 
-      phone, 
-      address, 
-      gender, 
-      course, 
+    console.log('📝 Received registration data:', body);
+
+    const {
+      firstName,
+      lastName,
+      email,
+      phone,
+      address,
+      gender,
+      course,
       serviceId,
       userType,
       organization,
-      experience 
+      experience,
     } = body;
 
-    console.log('📝 Registration data:', { 
-      firstName, 
-      lastName, 
-      email, 
-      phone, 
-      address, 
-      gender, 
-      course: course || 'None',
-      serviceId: serviceId || 'None',
-      userType,
-      organization: organization || 'None',
-      experience 
-    });
-
-    // Validation - First Name (only letters)
+    // Validation - First Name
     if (!firstName || !firstName.trim()) {
       return NextResponse.json(
         { message: 'First name is required' },
         { status: 400 }
       );
     }
-    if (!/^[A-Za-z\s]+$/.test(firstName)) {
+    if (!/^[A-Za-z\s]+$/.test(firstName.trim())) {
       return NextResponse.json(
         { message: 'First name should only contain letters' },
         { status: 400 }
       );
     }
 
-    // Validation - Last Name (only letters)
+    // Validation - Last Name
     if (!lastName || !lastName.trim()) {
       return NextResponse.json(
         { message: 'Last name is required' },
         { status: 400 }
       );
     }
-    if (!/^[A-Za-z\s]+$/.test(lastName)) {
+    if (!/^[A-Za-z\s]+$/.test(lastName.trim())) {
       return NextResponse.json(
         { message: 'Last name should only contain letters' },
         { status: 400 }
       );
     }
 
-    // Validation - Email (optional but validate if provided)
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    // Validation - Email
+    if (!email || !email.trim()) {
+      return NextResponse.json(
+        { message: 'Email address is required' },
+        { status: 400 }
+      );
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       return NextResponse.json(
         { message: 'Please enter a valid email address' },
         { status: 400 }
       );
     }
 
-    // Validation - Phone (required)
+    // Validation - Phone
     if (!phone || !phone.trim()) {
       return NextResponse.json(
         { message: 'Phone number is required' },
         { status: 400 }
       );
     }
-    if (!/^[\+\d\s\-()]{7,20}$/.test(phone)) {
+    if (!/^[\+\d\s\-()]{7,20}$/.test(phone.trim())) {
       return NextResponse.json(
-        { message: 'Please enter a valid phone number' },
+        { message: 'Please enter a valid phone number (7-20 digits)' },
         { status: 400 }
       );
     }
 
-    // Validation - Address (required)
+    // Validation - Address
     if (!address || !address.trim()) {
       return NextResponse.json(
         { message: 'Address is required' },
@@ -92,7 +102,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validation - Gender (required)
+    // Validation - Gender
     if (!gender || !gender.trim()) {
       return NextResponse.json(
         { message: 'Please select your gender' },
@@ -100,41 +110,83 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validation - User Type (required)
-    if (!userType || !userType.trim()) {
+    // User Type Normalization (Handles 'Student', 'student', 'service', 'Service User')
+    const normalizedUserType = userType ? String(userType).toLowerCase().trim() : '';
+    const isStudent = normalizedUserType === 'student';
+    const isService =
+      normalizedUserType === 'service' ||
+      normalizedUserType === 'service user' ||
+      normalizedUserType === 'service_user';
+
+    if (!normalizedUserType || (!isStudent && !isService)) {
       return NextResponse.json(
-        { message: 'Please select user type' },
+        { message: 'Please select a valid user type' },
         { status: 400 }
       );
     }
 
-    client = await pool.connect();
+    // Connect to database
+    try {
+      client = await pool.connect();
+      console.log('✅ Database connected successfully');
+    } catch (dbError) {
+      console.error('❌ Database connection error:', dbError);
+      return NextResponse.json(
+        { message: 'Database connection failed. Please try again.' },
+        { status: 500 }
+      );
+    }
+
+    const cleanPhone = phone.trim();
+    const cleanEmail = email.trim();
 
     // Check if phone number already exists
-    const checkPhone = await client.query(
-      'SELECT id FROM service_users WHERE phone = $1',
-      [phone]
+    const checkPhoneUser = await client.query(
+      'SELECT id FROM users WHERE phone = $1',
+      [cleanPhone]
     );
-    
-    if (checkPhone.rows.length > 0) {
-      client.release();
+
+    if (checkPhoneUser.rows.length > 0) {
       return NextResponse.json(
         { message: 'This phone number is already registered' },
         { status: 400 }
       );
     }
 
-    // Check if email already exists (if provided)
-    if (email && email.trim()) {
-      const checkEmail = await client.query(
-        'SELECT id FROM service_users WHERE email = $1',
-        [email.trim()]
+    const checkPhoneService = await client.query(
+      'SELECT id FROM service_users WHERE phone = $1',
+      [cleanPhone]
+    );
+
+    if (checkPhoneService.rows.length > 0) {
+      return NextResponse.json(
+        { message: 'This phone number is already registered as a service user' },
+        { status: 400 }
       );
-      
-      if (checkEmail.rows.length > 0) {
-        client.release();
+    }
+
+    // Check if email already exists
+    if (cleanEmail) {
+      const checkEmailUser = await client.query(
+        'SELECT id FROM users WHERE email = $1',
+        [cleanEmail]
+      );
+
+      if (checkEmailUser.rows.length > 0) {
         return NextResponse.json(
           { message: 'This email is already registered' },
+          { status: 400 }
+        );
+      }
+
+      const checkEmailService = await client.query(
+        'SELECT id FROM service_users WHERE email = $1',
+        [cleanEmail]
+      );
+
+      if (checkEmailService.rows.length > 0) {
+        return NextResponse.json(
+          { message: 'This email is already registered as a service user' },
           { status: 400 }
         );
       }
@@ -143,73 +195,84 @@ export async function POST(request: NextRequest) {
     let result;
     let userId;
 
-    if (userType === 'student') {
+    if (isStudent) {
       // ===== STUDENT REGISTRATION =====
-      // Insert only into users table
-      const courseValue = course && course.trim() && course !== 'none' ? course.trim() : '';
-      
-      result = await client.query(
-        `INSERT INTO users (first_name, last_name, email, phone, address, gender, course, experience, user_type, registered_at) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP) 
-         RETURNING id`,
-        [
-          firstName.trim(), 
-          lastName.trim(), 
-          email?.trim() || null, 
-          phone.trim(), 
-          address.trim(), 
+      console.log('📝 Registering student...');
+
+      const courseValue =
+        course && course.trim() && course !== 'none' ? course.trim() : null;
+
+      const insertQuery = `
+        INSERT INTO users (
+          first_name, 
+          last_name, 
+          email, 
+          phone, 
+          address, 
           gender, 
-          courseValue, 
-          experience?.trim() || '',
-          'student'
-        ]
-      );
-      
+          course, 
+          experience, 
+          user_type, 
+          status,
+          registered_at, 
+          created_at, 
+          updated_at
+        ) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) 
+        RETURNING id
+      `;
+
+      const insertValues = [
+        firstName.trim(),
+        lastName.trim(),
+        cleanEmail,
+        cleanPhone,
+        address.trim(),
+        gender.trim(),
+        courseValue,
+        experience?.trim() || null,
+        'student',
+        'active',
+      ];
+
+      result = await client.query(insertQuery, insertValues);
       userId = result.rows[0].id;
-      
+
       console.log('✅ Student registered successfully with ID:', userId);
 
-      client.release();
-
       return NextResponse.json(
-        { 
+        {
           success: true,
-          message: 'Student registration successful! Welcome to DreamMore!', 
+          message: 'Student registration successful! Welcome to DreamMore!',
           userId: userId,
-          userType: 'student'
+          userType: 'student',
         },
         { status: 201 }
       );
-
-    } else if (userType === 'service') {
+    } else if (isService) {
       // ===== SERVICE USER REGISTRATION =====
-      
-      // Validate service selection
+      console.log('📝 Registering service user...');
+
       if (!serviceId || serviceId === 'none') {
-        client.release();
         return NextResponse.json(
           { message: 'Please select a service' },
           { status: 400 }
         );
       }
 
-      // Validate organization for service users
       if (!organization || !organization.trim()) {
-        client.release();
         return NextResponse.json(
           { message: 'Organization name is required for service users' },
           { status: 400 }
         );
       }
 
-      // Get the service details from the services table
       const serviceResult = await client.query(
         'SELECT name, category, id FROM services WHERE id = $1',
         [parseInt(serviceId)]
       );
 
       if (!serviceResult.rows || serviceResult.rows.length === 0) {
-        client.release();
         return NextResponse.json(
           { message: 'Selected service not found' },
           { status: 400 }
@@ -218,71 +281,103 @@ export async function POST(request: NextRequest) {
 
       const serviceName = serviceResult.rows[0].name;
       const serviceCategory = serviceResult.rows[0].category;
-      const serviceIdNum = serviceResult.rows[0].id;
 
-      // Insert into service_users table with organization field
-      result = await client.query(
-        `INSERT INTO service_users (user_id, first_name, last_name, email, phone, address, gender, course, organization, experience, status, registered_at) 
-         VALUES (NULL, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP) 
-         RETURNING id`,
-        [
-          firstName.trim(), 
-          lastName.trim(), 
-          email?.trim() || null, 
-          phone.trim(), 
-          address.trim(), 
+      const insertQuery = `
+        INSERT INTO service_users (
+          user_id, 
+          first_name, 
+          last_name, 
+          email, 
+          phone, 
+          address, 
           gender, 
-          serviceName, // Store the service name in course field
-          organization.trim(), // Add organization
-          experience?.trim() || '',
-          'active'
-        ]
-      );
-      
+          course, 
+          organization, 
+          experience, 
+          status, 
+          registered_at, 
+          created_at, 
+          updated_at
+        ) 
+        VALUES (NULL, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) 
+        RETURNING id
+      `;
+
+      const insertValues = [
+        firstName.trim(),
+        lastName.trim(),
+        cleanEmail,
+        cleanPhone,
+        address.trim(),
+        gender.trim(),
+        serviceName,
+        organization.trim(),
+        experience?.trim() || null,
+        'active',
+      ];
+
+      result = await client.query(insertQuery, insertValues);
       const serviceUserId = result.rows[0].id;
 
-      console.log('✅ Service user registered successfully with ID:', serviceUserId, 'Service:', serviceName, 'Category:', serviceCategory, 'Organization:', organization);
-
-      client.release();
+      console.log('✅ Service user registered successfully with ID:', serviceUserId);
 
       return NextResponse.json(
-        { 
+        {
           success: true,
-          message: `Service user registration successful! Welcome to DreamMore!`, 
+          message: 'Service user registration successful! Welcome to DreamMore!',
           serviceUserId: serviceUserId,
           serviceName: serviceName,
           serviceCategory: serviceCategory,
-          organization: organization,
-          userType: 'service'
+          organization: organization.trim(),
+          userType: 'service',
         },
         { status: 201 }
       );
-
-    } else {
-      client.release();
-      return NextResponse.json(
-        { message: 'Invalid user type selected' },
-        { status: 400 }
-      );
     }
-    
-  } catch (error) {
-    console.error('❌ Registration error:', error);
-    
+  } catch (error: unknown) {
+    // Type guard to check if error has the expected properties
+    const isDatabaseError = (err: unknown): err is DatabaseError => {
+      return typeof err === 'object' && err !== null && 'message' in err;
+    };
+
+    console.error('❌ Registration error details:', {
+      message: isDatabaseError(error) ? error.message : 'Unknown error',
+      stack: isDatabaseError(error) ? error.stack : undefined,
+      code: isDatabaseError(error) && 'code' in error ? (error as DatabaseError).code : undefined,
+      detail: isDatabaseError(error) && 'detail' in error ? (error as DatabaseError).detail : undefined,
+    });
+
+    // Check for PostgreSQL unique violation error
+    if (isDatabaseError(error) && 'code' in error && error.code === '23505') {
+      const detail = (error as DatabaseError).detail || '';
+      if (detail.includes('phone')) {
+        return NextResponse.json(
+          { message: 'This phone number is already registered' },
+          { status: 400 }
+        );
+      } else if (detail.includes('email')) {
+        return NextResponse.json(
+          { message: 'This email is already registered' },
+          { status: 400 }
+        );
+      }
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: 'Registration failed. Please try again later.',
+      },
+      { status: 500 }
+    );
+  } finally {
     if (client) {
       try {
         client.release();
+        console.log('✅ Database client released');
       } catch (releaseError) {
         console.error('Error releasing client:', releaseError);
       }
     }
-    
-    return NextResponse.json(
-      { 
-        success: false,
-        message: 'Internal server error. Please try again later.' 
-      },
-      { status: 500 }
-    );
   }
 }
