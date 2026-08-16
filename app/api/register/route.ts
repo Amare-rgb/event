@@ -16,9 +16,26 @@ export async function POST(request: NextRequest) {
   let client: PoolClient | null = null;
 
   try {
-    // 0. Database tables መኖራቸውን ማረጋገጥ
+    // 0. Fail fast if DATABASE_URL isn't configured on this environment
+    if (!process.env.DATABASE_URL) {
+      console.error('❌ DATABASE_URL is not set in this environment');
+      return NextResponse.json(
+        { message: 'Server configuration error. Please contact support.' },
+        { status: 500 }
+      );
+    }
+
+    // 1. Database tables መኖራቸውን ማረጋገጥ
     if (typeof initDatabase === 'function') {
-      await initDatabase();
+      try {
+        await initDatabase();
+      } catch (initErr) {
+        console.error('❌ initDatabase() failed:', initErr);
+        return NextResponse.json(
+          { message: 'Database initialization failed. Please try again.' },
+          { status: 500 }
+        );
+      }
     }
 
     const body = await request.json();
@@ -260,6 +277,14 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      const parsedServiceId = parseInt(serviceId, 10);
+      if (Number.isNaN(parsedServiceId)) {
+        return NextResponse.json(
+          { message: 'Invalid service selected' },
+          { status: 400 }
+        );
+      }
+
       if (!organization || !organization.trim()) {
         return NextResponse.json(
           { message: 'Organization name is required for service users' },
@@ -269,7 +294,7 @@ export async function POST(request: NextRequest) {
 
       const serviceResult = await client.query(
         'SELECT name, category, id FROM services WHERE id = $1',
-        [parseInt(serviceId)]
+        [parsedServiceId]
       );
 
       if (!serviceResult.rows || serviceResult.rows.length === 0) {
@@ -334,6 +359,12 @@ export async function POST(request: NextRequest) {
         { status: 201 }
       );
     }
+
+    // Should be unreachable given the validation above, but keep TS/runtime happy
+    return NextResponse.json(
+      { message: 'Please select a valid user type' },
+      { status: 400 }
+    );
   } catch (error: unknown) {
     // Type guard to check if error has the expected properties
     const isDatabaseError = (err: unknown): err is DatabaseError => {
@@ -363,10 +394,44 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check for undefined table / column errors (schema mismatch — very common
+    // cause right after a fresh Vercel + Neon deploy if migrations weren't run)
+    if (isDatabaseError(error) && 'code' in error) {
+      const code = (error as DatabaseError).code;
+      if (code === '42P01') {
+        // undefined_table
+        return NextResponse.json(
+          {
+            message:
+              'Registration failed. Please try again later.',
+            // Remove this debugHint before shipping to real users —
+            // it's here only so you can see the cause in the Network tab
+            // while debugging.
+            debugHint:
+              'Postgres error 42P01: a table used by this route does not exist. Your migrations likely have not run against the production database.',
+          },
+          { status: 500 }
+        );
+      }
+      if (code === '42703') {
+        // undefined_column
+        return NextResponse.json(
+          {
+            message: 'Registration failed. Please try again later.',
+            debugHint:
+              'Postgres error 42703: a column used by this route does not exist. Schema is out of sync with this code — run your migrations against production.',
+          },
+          { status: 500 }
+        );
+      }
+    }
+
     return NextResponse.json(
       {
         success: false,
         message: 'Registration failed. Please try again later.',
+        // TEMPORARY while debugging — remove once the real cause is fixed.
+        debugMessage: isDatabaseError(error) ? error.message : String(error),
       },
       { status: 500 }
     );
