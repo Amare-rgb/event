@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -14,7 +13,7 @@ interface ServiceUser {
   address: string;
   gender: string;
   course: string;
-  organization: string; // Added organization field
+  organization: string;
   experience: string;
   status: 'active' | 'inactive' | 'pending';
   registered_at: string;
@@ -96,7 +95,6 @@ const translations = {
     loadError: 'Failed to load service users',
     exportSuccess: 'Export successful!',
     noDataToExport: 'No data to export',
-    // Add Service Modal
     addServiceTitle: 'Add New Service',
     editServiceTitle: 'Edit Service',
     serviceName: 'Service Name',
@@ -116,7 +114,6 @@ const translations = {
     update: 'Update Service',
     adding: 'Adding...',
     updating: 'Updating...',
-    // Add Category Modal
     addCategoryTitle: 'Add New Category',
     categoryName: 'Category Name',
     categoryNamePlaceholder: 'Enter category name',
@@ -182,7 +179,6 @@ const translations = {
     loadError: 'የአገልግሎት ተጠቃሚዎችን ማግኘት አልተቻለም',
     exportSuccess: 'ወጭ በተሳካ ሁኔታ ተጠናቋል!',
     noDataToExport: 'ለመውጣት ምንም ውሂብ የለም',
-    // Add Service Modal
     addServiceTitle: 'አዲስ አገልግሎት ያክሉ',
     editServiceTitle: 'አገልግሎት አስተካክል',
     serviceName: 'የአገልግሎት ስም',
@@ -202,7 +198,6 @@ const translations = {
     update: 'አገልግሎት ያሻሽሉ',
     adding: 'በመጨመር ላይ...',
     updating: 'በማሻሻል ላይ...',
-    // Add Category Modal
     addCategoryTitle: 'አዲስ ምድብ ያክሉ',
     categoryName: 'የምድብ ስም',
     categoryNamePlaceholder: 'የምድብ ስም ያስገቡ',
@@ -220,7 +215,8 @@ const translations = {
 };
 
 export default function ServiceUsersPage() {
-  const router = useRouter();
+  // ✅ FIX 1: Removed unused `router` — we don't need useRouter here
+  // (Link component is used for navigation instead)
   const [serviceUsers, setServiceUsers] = useState<ServiceUser[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -264,9 +260,9 @@ export default function ServiceUsersPage() {
     try {
       setLoading(true);
       setError('');
-      
+
       const response = await fetch('/api/admin/service-users');
-      
+
       if (response.ok) {
         const data: ApiResponse = await response.json();
         if (data.users && Array.isArray(data.users)) {
@@ -278,8 +274,8 @@ export default function ServiceUsersPage() {
         setError(t.loadError);
         setServiceUsers([]);
       }
-    } catch (error) {
-      console.error('Fetch error:', error);
+    } catch (err) {
+      console.error('Fetch error:', err);
       setError(t.loadError);
       setServiceUsers([]);
     } finally {
@@ -294,14 +290,13 @@ export default function ServiceUsersPage() {
       if (response.ok) {
         const data = await response.json();
         setServices(data.services || []);
-        // Extract unique categories - FIXED: Type assertion to string[]
         const uniqueCategories = Array.from(
           new Set(data.services.map((s: Service) => s.category).filter(Boolean))
         ) as string[];
         setCategories(uniqueCategories);
       }
-    } catch (error) {
-      console.error('Error fetching services:', error);
+    } catch (err) {
+      console.error('Error fetching services:', err);
     }
   }, []);
 
@@ -322,12 +317,9 @@ export default function ServiceUsersPage() {
     fetchServices();
   };
 
-  // Handle Delete Service User - FIXED with proper error handling
+  // Handle Delete Service User
   const handleDelete = async (userId: number) => {
-    console.log('🔍 Delete button clicked for userId:', userId);
-    
     if (!userId) {
-      console.error('❌ userId is undefined or null');
       setError('Invalid user ID');
       return;
     }
@@ -341,31 +333,27 @@ export default function ServiceUsersPage() {
     setSuccessMessage('');
 
     try {
-      // ✅ FIXED: Use path parameter with the ID in the URL
       const url = `/api/admin/service-users/${userId}`;
-      console.log('🔍 Making DELETE request to:', url);
-      
       const response = await fetch(url, {
         method: 'DELETE',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       });
 
-      console.log('🔍 Response status:', response.status);
-      
       const responseText = await response.text();
-      console.log('🔍 Response text:', responseText);
 
       let data: DeleteResponse = { success: false, message: '' };
-      
+
       if (responseText && responseText.trim()) {
         try {
           data = JSON.parse(responseText) as DeleteResponse;
-        } catch (parseError) {
-          console.warn('Response is not valid JSON:', responseText);
+        } catch {
+          // ✅ FIX 2: Removed unused `parseError` variable
           if (response.ok) {
-            setServiceUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+            setServiceUsers((prevUsers) =>
+              prevUsers.filter((user) => user.id !== userId)
+            );
             setSuccessMessage(t.deleteSuccess);
             setTimeout(() => setSuccessMessage(''), 3000);
             setDeletingId(null);
@@ -375,22 +363,25 @@ export default function ServiceUsersPage() {
       }
 
       if (response.ok) {
-        setServiceUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
+        setServiceUsers((prevUsers) =>
+          prevUsers.filter((user) => user.id !== userId)
+        );
         setSuccessMessage(data.message || t.deleteSuccess);
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
         setError(data.message || t.deleteError || `Error ${response.status}`);
       }
-    } catch (error) {
-      console.error('❌ Delete error:', error);
+    } catch (err) {
+      console.error('Delete error:', err);
       setError(t.deleteError);
     } finally {
       setDeletingId(null);
     }
   };
 
+  // ✅ FIX 3: Removed unused `serviceName` parameter from handleDeleteService
   // Handle Delete Service
-  const handleDeleteService = async (serviceId: number, serviceName: string) => {
+  const handleDeleteService = async (serviceId: number) => {
     if (!confirm(t.confirmDeleteService)) {
       return;
     }
@@ -409,8 +400,8 @@ export default function ServiceUsersPage() {
         const data = await response.json();
         setError(data.error || t.serviceDeleteError);
       }
-    } catch (error) {
-      console.error('Delete service error:', error);
+    } catch (err) {
+      console.error('Delete service error:', err);
       setError(t.serviceDeleteError);
     }
   };
@@ -422,10 +413,8 @@ export default function ServiceUsersPage() {
     }
 
     try {
-      // Get all services in this category
-      const servicesToDelete = services.filter(s => s.category === category);
-      
-      // Delete each service
+      const servicesToDelete = services.filter((s) => s.category === category);
+
       for (const service of servicesToDelete) {
         await fetch(`/api/admin/services?id=${service.id}`, {
           method: 'DELETE',
@@ -436,8 +425,8 @@ export default function ServiceUsersPage() {
       setTimeout(() => setSuccessMessage(''), 3000);
       fetchServices();
       fetchServiceUsers();
-    } catch (error) {
-      console.error('Delete category error:', error);
+    } catch (err) {
+      console.error('Delete category error:', err);
       setError(t.categoryDeleteError);
     }
   };
@@ -458,7 +447,6 @@ export default function ServiceUsersPage() {
     setCategoryError('');
 
     try {
-      // Add a service to create the category
       const response = await fetch('/api/admin/services', {
         method: 'POST',
         headers: {
@@ -482,8 +470,8 @@ export default function ServiceUsersPage() {
         const data = await response.json();
         setCategoryError(data.error || t.addCategoryError);
       }
-    } catch (error) {
-      console.error('Add category error:', error);
+    } catch (err) {
+      console.error('Add category error:', err);
       setCategoryError(t.addCategoryError);
     } finally {
       setAddingCategory(false);
@@ -506,9 +494,11 @@ export default function ServiceUsersPage() {
     setServiceError('');
 
     try {
-      const url = isEditingService ? `/api/admin/services?id=${editingServiceId}` : '/api/admin/services';
+      const url = isEditingService
+        ? `/api/admin/services?id=${editingServiceId}`
+        : '/api/admin/services';
       const method = isEditingService ? 'PUT' : 'POST';
-      
+
       const response = await fetch(url, {
         method: method,
         headers: {
@@ -524,33 +514,34 @@ export default function ServiceUsersPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage(isEditingService ? t.updateServiceSuccess : t.addServiceSuccess);
+        setSuccessMessage(
+          isEditingService ? t.updateServiceSuccess : t.addServiceSuccess
+        );
         setTimeout(() => setSuccessMessage(''), 3000);
         setShowAddServiceModal(false);
         resetServiceForm();
         fetchServices();
         fetchServiceUsers();
       } else {
-        setServiceError(data.error || (isEditingService ? t.updateServiceError : t.addServiceError));
+        setServiceError(
+          data.error ||
+            (isEditingService ? t.updateServiceError : t.addServiceError)
+        );
       }
-    } catch (error) {
-      console.error('Service operation error:', error);
-      setServiceError(isEditingService ? t.updateServiceError : t.addServiceError);
+    } catch (err) {
+      console.error('Service operation error:', err);
+      setServiceError(
+        isEditingService ? t.updateServiceError : t.addServiceError
+      );
     } finally {
       setAddingService(false);
     }
   };
 
-  // Handle Edit Service
-  const handleEditService = (service: Service) => {
-    setEditingServiceId(service.id);
-    setNewServiceName(service.name);
-    setNewServiceDescription(service.description || '');
-    setNewServiceCategory(service.category);
-    setIsEditingService(true);
-    setServiceError('');
-    setShowAddServiceModal(true);
-  };
+  // ✅ FIX 4: `handleEditService` is now wired to a button OR removed
+  // We'll remove it since we're not using it in the UI.
+  // If you want to add an edit button later, re-enable this function.
+  // const handleEditService = (service: Service) => { ... };
 
   const resetServiceForm = () => {
     setNewServiceName('');
@@ -561,31 +552,9 @@ export default function ServiceUsersPage() {
     setServiceError('');
   };
 
-  const handleStatusChange = async (userId: number, newStatus: 'active' | 'inactive' | 'pending') => {
-    try {
-      const response = await fetch(`/api/admin/service-users/${userId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (response.ok) {
-        setServiceUsers(prevUsers => 
-          prevUsers.map(user => 
-            user.id === userId ? { ...user, status: newStatus } : user
-          )
-        );
-        setSuccessMessage(t.statusUpdated);
-        setTimeout(() => setSuccessMessage(''), 3000);
-      } else {
-        const data = await response.json();
-        setError(data.error || 'Failed to update status');
-      }
-    } catch (error) {
-      console.error('Status update error:', error);
-      setError('Failed to update status');
-    }
-  };
+  // ✅ FIX 5: `handleStatusChange` is now wired to a select dropdown below
+  // OR removed. We'll remove it since there's no select in the UI.
+  // const handleStatusChange = async (userId: number, newStatus: ...) => { ... };
 
   const formatDateTime = (dateString: string) => {
     if (!dateString) return { date: t.na, time: t.na };
@@ -595,12 +564,12 @@ export default function ServiceUsersPage() {
         date: date.toLocaleDateString(language === 'en' ? 'en-US' : 'am-ET', {
           year: 'numeric',
           month: 'short',
-          day: 'numeric'
+          day: 'numeric',
         }),
         time: date.toLocaleTimeString(language === 'en' ? 'en-US' : 'am-ET', {
           hour: '2-digit',
-          minute: '2-digit'
-        })
+          minute: '2-digit',
+        }),
       };
     } catch {
       return { date: t.na, time: t.na };
@@ -611,18 +580,22 @@ export default function ServiceUsersPage() {
     const styles: Record<string, string> = {
       active: 'bg-green-100 text-green-700',
       inactive: 'bg-red-100 text-red-700',
-      pending: 'bg-yellow-100 text-yellow-700'
+      pending: 'bg-yellow-100 text-yellow-700',
     };
-    
+
     const labels: Record<string, string> = {
       active: t.active,
       inactive: t.inactive,
-      pending: t.pending
+      pending: t.pending,
     };
 
     const statusKey = status?.toLowerCase() || 'pending';
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[statusKey] || styles.pending}`}>
+      <span
+        className={`px-2 py-1 rounded-full text-xs font-medium ${
+          styles[statusKey] || styles.pending
+        }`}
+      >
         {labels[statusKey] || status || t.pending}
       </span>
     );
@@ -630,24 +603,25 @@ export default function ServiceUsersPage() {
 
   const getGenderBadge = (gender: string) => {
     if (!gender) return <span className="text-gray-400 text-xs">{t.na}</span>;
-    
+
     const genderMap: Record<string, string> = {
-      'male': t.male,
-      'female': t.female,
-      'other': t.other,
-      'prefer-not-to-say': t.preferNotToSay
+      male: t.male,
+      female: t.female,
+      other: t.other,
+      'prefer-not-to-say': t.preferNotToSay,
     };
-    
+
     const colors: Record<string, string> = {
-      'male': 'bg-blue-100 text-blue-700',
-      'female': 'bg-pink-100 text-pink-700',
-      'other': 'bg-purple-100 text-purple-700',
-      'prefer-not-to-say': 'bg-gray-100 text-gray-700'
+      male: 'bg-blue-100 text-blue-700',
+      female: 'bg-pink-100 text-pink-700',
+      other: 'bg-purple-100 text-purple-700',
+      'prefer-not-to-say': 'bg-gray-100 text-gray-700',
     };
-    
+
     const displayGender = genderMap[gender.toLowerCase()] || gender;
-    const colorClass = colors[gender.toLowerCase()] || 'bg-gray-100 text-gray-700';
-    
+    const colorClass =
+      colors[gender.toLowerCase()] || 'bg-gray-100 text-gray-700';
+
     return (
       <span className={`px-2 py-1 rounded-full text-xs ${colorClass}`}>
         {displayGender}
@@ -655,26 +629,25 @@ export default function ServiceUsersPage() {
     );
   };
 
-  // Get filtered services based on selected category
-  const filteredServices = selectedCategory 
-    ? services.filter(s => s.category === selectedCategory)
+  const filteredServices = selectedCategory
+    ? services.filter((s) => s.category === selectedCategory)
     : services;
 
-  // Filter service users
-  const filteredUsers = serviceUsers.filter(user => {
+  const filteredUsers = serviceUsers.filter((user) => {
     const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = 
+    const matchesSearch =
       user.first_name?.toLowerCase().includes(searchLower) ||
       user.last_name?.toLowerCase().includes(searchLower) ||
       (user.email && user.email.toLowerCase().includes(searchLower)) ||
       user.phone?.includes(searchTerm) ||
       user.address?.toLowerCase().includes(searchLower) ||
       (user.organization && user.organization.toLowerCase().includes(searchLower));
-    
+
     const userServices = (user.course || '').toLowerCase();
-    const matchesService = selectedService ? 
-      userServices.includes(selectedService.toLowerCase()) : true;
-    
+    const matchesService = selectedService
+      ? userServices.includes(selectedService.toLowerCase())
+      : true;
+
     return matchesSearch && matchesService;
   });
 
@@ -685,43 +658,55 @@ export default function ServiceUsersPage() {
     }
 
     const headers = [
-      'ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Address',
-      'Gender', 'Service', 'Organization', 'Experience', 'Status', 'Date'
+      'ID',
+      'First Name',
+      'Last Name',
+      'Email',
+      'Phone',
+      'Address',
+      'Gender',
+      'Service',
+      'Organization',
+      'Experience',
+      'Status',
+      'Date',
     ];
 
-    const rows = filteredUsers.map(user => {
+    const rows = filteredUsers.map((user) => {
       const { date } = formatDateTime(user.registered_at);
       return [
         user.id,
-        user.first_name || '', 
-        user.last_name || '', 
+        user.first_name || '',
+        user.last_name || '',
         user.email || 'N/A',
-        user.phone || '', 
-        user.address || '', 
+        user.phone || '',
+        user.address || '',
         user.gender || 'N/A',
         user.course || 'N/A',
-        user.organization || 'N/A', 
-        user.experience || 'N/A', 
-        user.status || 'pending', 
-        date
+        user.organization || 'N/A',
+        user.experience || 'N/A',
+        user.status || 'pending',
+        date,
       ];
     });
 
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
+    const csvContent = [headers.join(','), ...rows.map((row) => row.join(','))].join(
+      '\n'
+    );
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `service_users_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute(
+      'download',
+      `service_users_export_${new Date().toISOString().split('T')[0]}.csv`
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
     setSuccessMessage(t.exportSuccess);
     setTimeout(() => setSuccessMessage(''), 3000);
   };
@@ -741,26 +726,53 @@ export default function ServiceUsersPage() {
         <div className="max-w-7xl mx-auto px-4 py-3">
           <div className="flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-3">
-              <Link href="/admin/dashboard" className="text-gray-500 hover:text-gray-700">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+              <Link
+                href="/admin/dashboard"
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M15 19l-7-7 7-7"
+                  />
                 </svg>
               </Link>
               <div className="flex items-center gap-3">
-                <svg className="w-6 h-6 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="w-6 h-6 text-teal-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
                 </svg>
                 <h1 className="text-lg font-bold text-gray-800">{t.title}</h1>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => setShowAddCategoryModal(true)}
                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5"
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 {t.addCategory}
               </button>
@@ -772,8 +784,18 @@ export default function ServiceUsersPage() {
                 }}
                 className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5"
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 4v16m8-8H4"
+                  />
                 </svg>
                 {t.addService}
               </button>
@@ -782,18 +804,32 @@ export default function ServiceUsersPage() {
                 onClick={handleRefresh}
                 className="bg-teal-100 hover:bg-teal-200 text-teal-700 px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5"
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
                 </svg>
                 {t.refresh}
               </button>
-              
+
               <button
                 onClick={exportToCSV}
                 className="bg-green-100 hover:bg-green-200 text-green-700 px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1.5"
               >
                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2-1a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V4a1 1 0 00-1-1H6z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2-1a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V4a1 1 0 00-1-1H6z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 {t.export}
               </button>
@@ -805,7 +841,10 @@ export default function ServiceUsersPage() {
               </button>
 
               <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1.5 rounded-lg">
-                {t.total}: <span className="font-bold text-teal-600">{filteredUsers.length}</span>
+                {t.total}:{' '}
+                <span className="font-bold text-teal-600">
+                  {filteredUsers.length}
+                </span>
               </span>
             </div>
           </div>
@@ -815,9 +854,17 @@ export default function ServiceUsersPage() {
       <div className="max-w-7xl mx-auto px-4 py-4">
         {/* Success Message */}
         {successMessage && (
-          <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm animate-fade-in">
-            <svg className="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          <div className="mb-4 p-3 bg-green-50 text-green-700 rounded-lg border border-green-200 text-sm">
+            <svg
+              className="w-4 h-4 inline mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
             </svg>
             {successMessage}
           </div>
@@ -826,21 +873,41 @@ export default function ServiceUsersPage() {
         {/* Error Message */}
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
-            <svg className="w-4 h-4 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            <svg
+              className="w-4 h-4 inline mr-2"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
             </svg>
             {error}
           </div>
         )}
 
-        {/* Search and Filters with Category and Service Dropdowns */}
+        {/* Search and Filters */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">{t.search}</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t.search}
+              </label>
               <div className="relative">
-                <svg className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 <input
                   type="text"
@@ -851,9 +918,11 @@ export default function ServiceUsersPage() {
                 />
               </div>
             </div>
-            
+
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">{t.filterByCategory}</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t.filterByCategory}
+              </label>
               <div className="flex gap-1">
                 <select
                   value={selectedCategory}
@@ -876,8 +945,18 @@ export default function ServiceUsersPage() {
                     className="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-2 rounded-lg text-xs transition flex items-center gap-1"
                     title={t.deleteCategory}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
                     </svg>
                   </button>
                 )}
@@ -885,7 +964,9 @@ export default function ServiceUsersPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-1">{t.filterByService}</label>
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                {t.filterByService}
+              </label>
               <div className="flex gap-1">
                 <select
                   value={selectedService}
@@ -903,21 +984,33 @@ export default function ServiceUsersPage() {
                 {selectedService && (
                   <button
                     onClick={() => {
-                      const service = services.find(s => s.name === selectedService);
-                      if (service) handleDeleteService(service.id, service.name);
+                      const service = services.find(
+                        (s) => s.name === selectedService
+                      );
+                      if (service) handleDeleteService(service.id);
                     }}
                     className="bg-red-100 hover:bg-red-200 text-red-600 px-3 py-2 rounded-lg text-xs transition flex items-center gap-1"
                     title={t.deleteService}
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
                     </svg>
                   </button>
                 )}
               </div>
             </div>
           </div>
-          
+
           {(searchTerm || selectedCategory || selectedService) && (
             <div className="mt-3 flex justify-end">
               <button
@@ -928,8 +1021,18 @@ export default function ServiceUsersPage() {
                 }}
                 className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
                 {t.clear}
               </button>
@@ -937,18 +1040,27 @@ export default function ServiceUsersPage() {
           )}
         </div>
 
-        {/* Service Users Table */}
+        {/* Table */}
         {filteredUsers.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            <svg
+              className="w-16 h-16 mx-auto text-gray-300 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+              />
             </svg>
             <h3 className="text-lg font-medium text-gray-600 mb-2">
-              {searchTerm || selectedCategory || selectedService ? t.noServiceUsersMatch : t.noServiceUsers}
+              {searchTerm || selectedCategory || selectedService
+                ? t.noServiceUsersMatch
+                : t.noServiceUsers}
             </h3>
-            <p className="text-sm text-gray-400">
-              {searchTerm || selectedCategory || selectedService ? 'Try adjusting your filters' : 'Add your first service user by clicking the "Add New" button'}
-            </p>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -956,23 +1068,44 @@ export default function ServiceUsersPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Registered</th>
-                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      #
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Service
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Organization
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Registered
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredUsers.map((user, index) => {
                     const { date } = formatDateTime(user.registered_at);
-                    
+
                     return (
-                      <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                      <tr
+                        key={user.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
                         <td className="px-4 py-3 text-gray-500">{index + 1}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
@@ -986,28 +1119,37 @@ export default function ServiceUsersPage() {
                                   className="rounded-full object-cover"
                                 />
                               ) : (
-                                `${(user.first_name || 'U').charAt(0)}${(user.last_name || '').charAt(0) || ''}`
+                                `${(user.first_name || 'U').charAt(0)}${
+                                  (user.last_name || '').charAt(0) || ''
+                                }`
                               )}
                             </div>
                             <div>
                               <div className="font-medium text-gray-800">
-                                {user.first_name || 'Unknown'} {user.last_name || ''}
+                                {user.first_name || 'Unknown'}{' '}
+                                {user.last_name || ''}
                               </div>
-                              <div className="text-xs text-gray-400">{user.gender || t.na}</div>
+                              <div className="text-xs text-gray-400">
+                                {user.gender || t.na}
+                              </div>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3 text-gray-600 max-w-[150px] truncate">
                           {user.email || t.na}
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{user.phone || t.na}</td>
+                        <td className="px-4 py-3 text-gray-600">
+                          {user.phone || t.na}
+                        </td>
                         <td className="px-4 py-3">
                           {user.course ? (
                             <span className="bg-teal-50 text-teal-700 px-2 py-1 rounded-full text-xs">
                               {user.course}
                             </span>
                           ) : (
-                            <span className="text-gray-400 text-xs">{t.na}</span>
+                            <span className="text-gray-400 text-xs">
+                              {t.na}
+                            </span>
                           )}
                         </td>
                         <td className="px-4 py-3">
@@ -1016,11 +1158,17 @@ export default function ServiceUsersPage() {
                               {user.organization}
                             </span>
                           ) : (
-                            <span className="text-gray-400 text-xs">{t.na}</span>
+                            <span className="text-gray-400 text-xs">
+                              {t.na}
+                            </span>
                           )}
                         </td>
-                        <td className="px-4 py-3">{getStatusBadge(user.status || 'pending')}</td>
-                        <td className="px-4 py-3 text-gray-500 text-xs">{date}</td>
+                        <td className="px-4 py-3">
+                          {getStatusBadge(user.status || 'pending')}
+                        </td>
+                        <td className="px-4 py-3 text-gray-500 text-xs">
+                          {date}
+                        </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-center gap-2">
                             <button
@@ -1031,9 +1179,24 @@ export default function ServiceUsersPage() {
                               className="text-teal-600 hover:text-teal-800 p-1 rounded hover:bg-teal-50 transition"
                               title={t.view}
                             >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth="2"
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
                               </svg>
                             </button>
                             <button
@@ -1043,13 +1206,38 @@ export default function ServiceUsersPage() {
                               title={t.delete}
                             >
                               {deletingId === user.id ? (
-                                <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <svg
+                                  className="w-4 h-4 animate-spin"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  ></circle>
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                  ></path>
                                 </svg>
                               ) : (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                  />
                                 </svg>
                               )}
                             </button>
@@ -1064,7 +1252,6 @@ export default function ServiceUsersPage() {
           </div>
         )}
 
-        {/* Results count */}
         {filteredUsers.length > 0 && (
           <div className="mt-4 text-center text-sm text-gray-500">
             Showing {filteredUsers.length} of {serviceUsers.length} service users
@@ -1077,7 +1264,9 @@ export default function ServiceUsersPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-800">{t.details}</h3>
+              <h3 className="text-lg font-semibold text-gray-800">
+                {t.details}
+              </h3>
               <button
                 onClick={() => {
                   setShowDetailsModal(false);
@@ -1085,12 +1274,22 @@ export default function ServiceUsersPage() {
                 }}
                 className="text-gray-400 hover:text-gray-600 transition"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
-            
+
             <div className="p-6 space-y-4">
               <div className="flex items-center gap-4">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
@@ -1103,12 +1302,15 @@ export default function ServiceUsersPage() {
                       className="rounded-full object-cover"
                     />
                   ) : (
-                    `${(selectedUser.first_name || 'U').charAt(0)}${(selectedUser.last_name || '').charAt(0) || ''}`
+                    `${(selectedUser.first_name || 'U').charAt(0)}${
+                      (selectedUser.last_name || '').charAt(0) || ''
+                    }`
                   )}
                 </div>
                 <div>
                   <h4 className="text-xl font-bold text-gray-800">
-                    {selectedUser.first_name || 'Unknown'} {selectedUser.last_name || ''}
+                    {selectedUser.first_name || 'Unknown'}{' '}
+                    {selectedUser.last_name || ''}
                   </h4>
                   <div className="flex items-center gap-2 mt-1">
                     {getStatusBadge(selectedUser.status || 'pending')}
@@ -1119,38 +1321,68 @@ export default function ServiceUsersPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Email</label>
-                  <p className="text-sm text-gray-800">{selectedUser.email || t.na}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Email
+                  </label>
+                  <p className="text-sm text-gray-800">
+                    {selectedUser.email || t.na}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Phone</label>
-                  <p className="text-sm text-gray-800">{selectedUser.phone || t.na}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Phone
+                  </label>
+                  <p className="text-sm text-gray-800">
+                    {selectedUser.phone || t.na}
+                  </p>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs font-medium text-gray-500">Address</label>
-                  <p className="text-sm text-gray-800">{selectedUser.address || t.na}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Address
+                  </label>
+                  <p className="text-sm text-gray-800">
+                    {selectedUser.address || t.na}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Service</label>
-                  <p className="text-sm text-gray-800">{selectedUser.course || t.na}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Service
+                  </label>
+                  <p className="text-sm text-gray-800">
+                    {selectedUser.course || t.na}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Organization</label>
+                  <label className="text-xs font-medium text-gray-500">
+                    Organization
+                  </label>
                   <p className="text-sm text-gray-800 font-medium text-blue-700">
                     {selectedUser.organization || t.na}
                   </p>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs font-medium text-gray-500">Experience</label>
-                  <p className="text-sm text-gray-800">{selectedUser.experience || t.na}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Experience
+                  </label>
+                  <p className="text-sm text-gray-800">
+                    {selectedUser.experience || t.na}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Registered</label>
-                  <p className="text-sm text-gray-800">{formatDateTime(selectedUser.registered_at).date}</p>
+                  <label className="text-xs font-medium text-gray-500">
+                    Registered
+                  </label>
+                  <p className="text-sm text-gray-800">
+                    {formatDateTime(selectedUser.registered_at).date}
+                  </p>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-gray-500">Status</label>
-                  <div className="mt-1">{getStatusBadge(selectedUser.status || 'pending')}</div>
+                  <label className="text-xs font-medium text-gray-500">
+                    Status
+                  </label>
+                  <div className="mt-1">
+                    {getStatusBadge(selectedUser.status || 'pending')}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1175,7 +1407,9 @@ export default function ServiceUsersPage() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-800">{t.addCategoryTitle}</h3>
+              <h3 className="text-lg font-semibold text-gray-800">
+                {t.addCategoryTitle}
+              </h3>
               <button
                 onClick={() => {
                   setShowAddCategoryModal(false);
@@ -1184,19 +1418,29 @@ export default function ServiceUsersPage() {
                 }}
                 className="text-gray-400 hover:text-gray-600 transition"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
-            
+
             <div className="p-6 space-y-4">
               {categoryError && (
                 <div className="p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
                   {categoryError}
                 </div>
               )}
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t.categoryName} <span className="text-red-500">*</span>
@@ -1213,7 +1457,7 @@ export default function ServiceUsersPage() {
                 />
               </div>
             </div>
-            
+
             <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-2">
               <button
                 onClick={() => {
@@ -1232,9 +1476,25 @@ export default function ServiceUsersPage() {
               >
                 {addingCategory ? (
                   <>
-                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     {t.adding}
                   </>
@@ -1262,19 +1522,29 @@ export default function ServiceUsersPage() {
                 }}
                 className="text-gray-400 hover:text-gray-600 transition"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
-            
+
             <div className="p-6 space-y-4">
               {serviceError && (
                 <div className="p-3 bg-red-50 text-red-700 rounded-lg border border-red-200 text-sm">
                   {serviceError}
                 </div>
               )}
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t.serviceCategory} <span className="text-red-500">*</span>
@@ -1311,7 +1581,7 @@ export default function ServiceUsersPage() {
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t.serviceDescription}
@@ -1325,7 +1595,7 @@ export default function ServiceUsersPage() {
                 />
               </div>
             </div>
-            
+
             <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-2">
               <button
                 onClick={() => {
@@ -1343,14 +1613,32 @@ export default function ServiceUsersPage() {
               >
                 {addingService ? (
                   <>
-                    <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     {isEditingService ? t.updating : t.adding}
                   </>
+                ) : isEditingService ? (
+                  t.update
                 ) : (
-                  isEditingService ? t.update : t.add
+                  t.add
                 )}
               </button>
             </div>

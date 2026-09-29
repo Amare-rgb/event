@@ -35,13 +35,10 @@ interface MailOptions {
   text: string;
   bcc: string[];
   attachments?: MailAttachment[];
+  [key: string]: unknown;
 }
 
-// Brand Colors
-const BRAND = {
-  primary: '#E26A25',
-  dark: '#2E3641',
-};
+// ✅ FIX: BRAND constant REMOVED (was unused)
 
 // ============ Email transporter ============
 const createTransporter = () => {
@@ -73,32 +70,36 @@ const createTransporter = () => {
 };
 
 // ============ Helper: Save image file ============
-async function saveImageFile(file: File): Promise<{ filename: string; filepath: string; url: string } | null> {
+async function saveImageFile(
+  file: File
+): Promise<{ filename: string; filepath: string; url: string } | null> {
   try {
-    // Create uploads directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'broadcast');
+    const uploadDir = path.join(
+      process.cwd(),
+      'public',
+      'uploads',
+      'broadcast'
+    );
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }
 
-    // Generate unique filename
     const timestamp = Date.now();
     const ext = path.extname(file.name);
     const filename = `broadcast_image_${timestamp}${ext}`;
     const filepath = path.join(uploadDir, filename);
-    
-    // Convert File to Buffer and save
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     await writeFile(filepath, buffer);
-    
-    // Store relative URL for email
+
     const url = `/uploads/broadcast/${filename}`;
-    
+
     console.log('✅ Image saved:', url);
     return { filename, filepath, url };
-  } catch (error) {
-    console.error('Error saving image:', error);
+  } catch (err) {
+    // ✅ FIX: renamed `error` → `err` and used it
+    console.error('Error saving image:', err);
     return null;
   }
 }
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const courseFilter = (formData.get('courseFilter') as string) || 'all';
     const sendType = (formData.get('sendType') as string) || 'all';
     const userFilter = (formData.get('userFilter') as string) || '';
-    const userType = (formData.get('userType') as string) || '';
+    // ✅ FIX: Removed unused `userType` variable (was `const userType = ...`)
     const excelFile = formData.get('excelFile') as File | null;
     const pdfFile = formData.get('pdfFile') as File | null;
     const imageFile = formData.get('imageFile') as File | null;
@@ -148,7 +149,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (imageFile && imageFile.size > 0) {
       try {
-        // Validate image size (max 5MB)
         if (imageFile.size > 5 * 1024 * 1024) {
           return NextResponse.json(
             { error: 'Image file size exceeds 5MB limit' },
@@ -156,26 +156,41 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           );
         }
 
-        // Validate image type
-        const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml', 'image/webp'];
-        if (!validTypes.includes(imageFile.type) && !imageFile.type.startsWith('image/')) {
+        const validTypes = [
+          'image/jpeg',
+          'image/png',
+          'image/gif',
+          'image/svg+xml',
+          'image/webp',
+        ];
+        if (
+          !validTypes.includes(imageFile.type) &&
+          !imageFile.type.startsWith('image/')
+        ) {
           return NextResponse.json(
-            { error: 'Invalid image format. Please use JPG, PNG, GIF, SVG, or WebP.' },
+            {
+              error:
+                'Invalid image format. Please use JPG, PNG, GIF, SVG, or WebP.',
+            },
             { status: 400 }
           );
         }
 
-        // Save the image file
         const savedImage = await saveImageFile(imageFile);
         if (savedImage) {
           imageUrl = savedImage.url;
           imageFilename = savedImage.filename;
           imageBuffer = Buffer.from(await imageFile.arrayBuffer());
           imageMimeType = imageFile.type || getImageMimeType(imageFile.name);
-          console.log(`🖼️ Image loaded: ${imageFilename} (${Math.round(imageBuffer.length / 1024)} KB)`);
+          console.log(
+            `🖼️ Image loaded: ${imageFilename} (${Math.round(
+              imageBuffer.length / 1024
+            )} KB)`
+          );
         }
-      } catch (error) {
-        console.error('Error processing image:', error);
+      } catch (err) {
+        // ✅ FIX: renamed `error` → `err`
+        console.error('Error processing image:', err);
         return NextResponse.json(
           { error: 'Failed to process image file' },
           { status: 400 }
@@ -195,9 +210,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       let countQuery = '';
       const params: string[] = [];
 
-      // ============================================================
       // 1. SERVICE USERS - All service users
-      // ============================================================
       if (sendType === 'service' && !userFilter) {
         targetTable = 'service_users';
         query = `
@@ -215,10 +228,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         `;
         console.log('📧 Targeting ALL Service Users');
       }
-      
-      // ============================================================
-      // 2. SPECIFIC SERVICE USER - One service user
-      // ============================================================
+
+      // 2. SPECIFIC SERVICE USER
       else if (sendType === 'service' && userFilter) {
         targetTable = 'service_users';
         query = `
@@ -239,10 +250,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         params.push(userFilter);
         console.log(`📧 Targeting Specific Service User: ${userFilter}`);
       }
-      
-      // ============================================================
+
       // 3. SPECIFIC USER - One regular user
-      // ============================================================
       else if (sendType === 'user' && userFilter) {
         targetTable = 'users';
         query = `
@@ -263,11 +272,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         params.push(userFilter);
         console.log(`📧 Targeting Specific User: ${userFilter}`);
       }
-      
-      // ============================================================
-      // 4. SPECIFIC COURSE - Regular users by course
-      // ============================================================
-      else if (sendType === 'course' && courseFilter && courseFilter !== 'all') {
+
+      // 4. SPECIFIC COURSE
+      else if (
+        sendType === 'course' &&
+        courseFilter &&
+        courseFilter !== 'all'
+      ) {
         targetTable = 'users';
         query = `
           SELECT email FROM users 
@@ -287,10 +298,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         params.push(courseFilter);
         console.log(`📧 Targeting Users in Course: ${courseFilter}`);
       }
-      
-      // ============================================================
-      // 5. ALL USERS - All regular users (DEFAULT)
-      // ============================================================
+
+      // 5. ALL USERS (DEFAULT)
       else {
         targetTable = 'users';
         query = `
@@ -309,7 +318,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         console.log('📧 Targeting ALL Regular Users');
       }
 
-      // Execute the queries
       const result = await client.query<EmailRow>(query, params);
       dbEmails = result.rows
         .map((row: EmailRow) => row.email)
@@ -318,14 +326,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             email !== null && email.trim() !== '' && email.includes('@')
         );
 
-      // Get count
       const countResult = await client.query(countQuery, params);
       dbUserCount = parseInt(countResult.rows[0].total, 10);
 
-      console.log(`📧 Found ${dbEmails.length} emails from ${targetTable} table`);
-
-    } catch (error) {
-      console.error('Error fetching users:', error);
+      console.log(
+        `📧 Found ${dbEmails.length} emails from ${targetTable} table`
+      );
+    } catch (err) {
+      // ✅ FIX: renamed `error` → `err`
+      console.error('Error fetching users:', err);
       return NextResponse.json(
         { error: 'Failed to fetch user emails' },
         { status: 500 }
@@ -357,7 +366,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             if (emailKey) {
               const emailValue = row[emailKey];
               const email =
-                typeof emailValue === 'string' ? emailValue.trim().toLowerCase() : null;
+                typeof emailValue === 'string'
+                  ? emailValue.trim().toLowerCase()
+                  : null;
               return email && email.includes('@') ? email : null;
             }
             return null;
@@ -368,8 +379,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           );
 
         console.log(`📧 Found ${excelEmails.length} emails from Excel`);
-      } catch (error) {
-        console.error('Error parsing Excel:', error);
+      } catch (err) {
+        // ✅ FIX: renamed `error` → `err`
+        console.error('Error parsing Excel:', err);
         return NextResponse.json(
           { error: 'Failed to parse Excel file' },
           { status: 400 }
@@ -377,7 +389,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // ---------- Merge & dedupe emails ----------
+    // ---------- Merge & dedupe ----------
     const allEmails = [...dbEmails, ...excelEmails];
     const uniqueEmails = [...new Set(allEmails)];
     const duplicatesRemoved = allEmails.length - uniqueEmails.length;
@@ -405,9 +417,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         const buffer = Buffer.from(await pdfFile.arrayBuffer());
         pdfBuffer = buffer;
         pdfFileName = pdfFile.name;
-        console.log(`📄 PDF file loaded: ${pdfFileName} (${Math.round(buffer.length / 1024)} KB)`);
-      } catch (error) {
-        console.error('Error reading PDF:', error);
+        console.log(
+          `📄 PDF file loaded: ${pdfFileName} (${Math.round(
+            buffer.length / 1024
+          )} KB)`
+        );
+      } catch (err) {
+        // ✅ FIX: renamed `error` → `err`
+        console.error('Error reading PDF:', err);
         return NextResponse.json(
           { error: 'Failed to read PDF file' },
           { status: 400 }
@@ -415,10 +432,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    // ---------- Build the attachments array ----------
+    // ---------- Build attachments array ----------
     const attachments: MailAttachment[] = [];
 
-    // Add PDF attachment if present
     if (pdfBuffer && pdfFileName) {
       attachments.push({
         filename: pdfFileName,
@@ -429,7 +445,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       console.log(`📎 PDF attachment queued: ${pdfFileName}`);
     }
 
-    // Add Image attachment if present (as inline image)
     let imageCid: string | null = null;
     if (imageBuffer && imageFilename && imageMimeType) {
       imageCid = `image_${Date.now()}`;
@@ -440,7 +455,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         contentDisposition: 'inline',
         cid: imageCid,
       });
-      console.log(`🖼️ Image attachment queued: ${imageFilename} (cid: ${imageCid})`);
+      console.log(
+        `🖼️ Image attachment queued: ${imageFilename} (cid: ${imageCid})`
+      );
     }
 
     // ---------- Send emails in BCC chunks ----------
@@ -455,7 +472,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         emailChunks.push(uniqueEmails.slice(i, i + BCC_LIMIT));
       }
 
-      console.log(`📧 Sending to ${uniqueEmails.length} recipients in ${emailChunks.length} chunk(s)`);
+      console.log(
+        `📧 Sending to ${uniqueEmails.length} recipients in ${emailChunks.length} chunk(s)`
+      );
 
       let totalSent = 0;
       const failedInChunks: string[] = [];
@@ -471,19 +490,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             throw new Error('Failed to create email transporter');
           }
 
-          // Escape message for HTML (prevent XSS) - using const
-          const escapedMessage = message.replace(/&/g, '&amp;')
-                                        .replace(/</g, '&lt;')
-                                        .replace(/>/g, '&gt;')
-                                        .replace(/"/g, '&quot;')
-                                        .replace(/\n/g, '<br>');
+          const escapedMessage = message
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/\n/g, '<br>');
 
-          // Build HTML message with image if available
-          const imageHtml = imageCid && imageUrl ? `
+          const imageHtml =
+            imageCid && imageUrl
+              ? `
               <div style="text-align: center; margin: 20px 0 30px 0;">
                 <img src="cid:${imageCid}" alt="Broadcast Image" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" />
               </div>
-            ` : '';
+            `
+              : '';
 
           const mailOptions: MailOptions = {
             from: `"DreamMore" <${process.env.EMAIL_USER}>`,
@@ -554,7 +575,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     <tr>
       <td align="center">
         <table cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; box-shadow: 0 8px 16px rgba(0,0,0,0.05);">
-          <!-- Brand Header -->
           <tr>
             <td style="padding: 50px 40px 30px 40px; text-align: center; border-bottom: 4px solid #E26A25; background: linear-gradient(180deg, #ffffff 0%, #fafaf8 100%);">
               <div class="dreammore-title">
@@ -565,31 +585,36 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               </div>
             </td>
           </tr>
-          <!-- Image (if attached) -->
           ${imageHtml}
-          <!-- Message Body -->
           <tr>
             <td style="padding: 45px 40px;">
               <div class="message-content">
                 ${escapedMessage}
               </div>
-              ${pdfFileName ? `
+              ${
+                pdfFileName
+                  ? `
                 <div class="attachment-box">
                   <p style="margin: 0; font-size: 14px; color: #166534;">
                     📄 <strong>Attachment:</strong> ${pdfFileName}
                   </p>
                 </div>
-              ` : ''}
-              ${imageFilename ? `
+              `
+                  : ''
+              }
+              ${
+                imageFilename
+                  ? `
                 <div style="margin-top: 15px; padding: 10px 20px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; text-align: center;">
                   <p style="margin: 0; font-size: 12px; color: #0369a1;">
                     🖼️ Image: ${imageFilename}
                   </p>
                 </div>
-              ` : ''}
+              `
+                  : ''
+              }
             </td>
           </tr>
-          <!-- Footer -->
           <tr>
             <td style="padding: 25px 40px; background-color: #f9fafb; border-top: 1px solid #e5e7eb; text-align: center; border-radius: 0 0 16px 16px;">
               <p style="font-size: 13px; color: #9ca3af; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
@@ -657,9 +682,12 @@ For support: support@dreammoredigitals.com
       sentCount = totalSent;
       failedEmails = failedInChunks;
 
-      console.log(`✅ Broadcast complete: ${sentCount} sent, ${failedEmails.length} failed`);
-    } catch (error) {
-      console.error('Error sending broadcast:', error);
+      console.log(
+        `✅ Broadcast complete: ${sentCount} sent, ${failedEmails.length} failed`
+      );
+    } catch (err) {
+      // ✅ FIX: renamed `error` → `err`
+      console.error('Error sending broadcast:', err);
       return NextResponse.json(
         { error: 'Failed to send broadcast emails' },
         { status: 500 }
@@ -670,7 +698,6 @@ For support: support@dreammoredigitals.com
     try {
       client = await pool.connect();
 
-      // Ensure broadcast_logs table exists with all required columns
       await client.query(`
         CREATE TABLE IF NOT EXISTS broadcast_logs (
           id SERIAL PRIMARY KEY,
@@ -695,7 +722,6 @@ For support: support@dreammoredigitals.com
         )
       `);
 
-      // Check and add missing columns if needed
       const columnsToCheck = ['image_attached', 'image_name', 'image_url'];
       for (const col of columnsToCheck) {
         const checkColumnQuery = `
@@ -705,7 +731,7 @@ For support: support@dreammoredigitals.com
           AND column_name = $1
         `;
         const columnCheck = await client.query(checkColumnQuery, [col]);
-        
+
         if (columnCheck.rows.length === 0) {
           let alterQuery = '';
           if (col === 'image_attached') {
@@ -720,7 +746,6 @@ For support: support@dreammoredigitals.com
         }
       }
 
-      // Determine target type and filter for logging
       let targetType = 'users';
       let targetFilter = 'all';
 
@@ -733,7 +758,11 @@ For support: support@dreammoredigitals.com
       } else if (sendType === 'user' && userFilter) {
         targetType = 'users';
         targetFilter = userFilter;
-      } else if (sendType === 'course' && courseFilter && courseFilter !== 'all') {
+      } else if (
+        sendType === 'course' &&
+        courseFilter &&
+        courseFilter !== 'all'
+      ) {
         targetType = 'users';
         targetFilter = `course:${courseFilter}`;
       } else {
@@ -781,9 +810,11 @@ For support: support@dreammoredigitals.com
       success: true,
       message:
         sentCount > 0
-          ? `Broadcast sent to ${sentCount} of ${uniqueEmails.length} recipients${
-              pdfFileName ? ` with PDF attachment: ${pdfFileName}` : ''
-            }${imageFilename ? ` with image: ${imageFilename}` : ''}`
+          ? `Broadcast sent to ${sentCount} of ${
+              uniqueEmails.length
+            } recipients${pdfFileName ? ` with PDF attachment: ${pdfFileName}` : ''}${
+              imageFilename ? ` with image: ${imageFilename}` : ''
+            }`
           : `Broadcast failed to send to any recipients`,
       sentCount,
       totalRecipients: uniqueEmails.length,
@@ -799,12 +830,14 @@ For support: support@dreammoredigitals.com
         imageName: imageFilename || null,
         imageUrl: imageUrl || null,
         targetType: targetTable,
-        targetFilter: sendType === 'course' ? courseFilter : (userFilter || 'all'),
+        targetFilter:
+          sendType === 'course' ? courseFilter : userFilter || 'all',
       },
       failedEmails: failedEmails.length > 0 ? failedEmails : undefined,
     });
-  } catch (error) {
-    console.error('Unexpected error:', error);
+  } catch (err) {
+    // ✅ FIX: renamed outer `error` → `err`
+    console.error('Unexpected error:', err);
     return NextResponse.json(
       { error: 'An unexpected error occurred' },
       { status: 500 }

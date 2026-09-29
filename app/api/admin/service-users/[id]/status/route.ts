@@ -3,36 +3,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-interface ServiceUserRow {
-  id: number;
-  user_id: number | null;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  gender: string;
-  course: string;
-  organization: string;
-  experience: string;
-  status: string;
-  registered_at: Date;
-  created_at: Date;
-  updated_at: Date;
-}
+// ✅ FIX 1: Removed unused `ServiceUserRow` interface
+// (It was defined but never referenced anywhere in this file.)
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   let client;
-  
+
   try {
     const { id } = await params;
     console.log('📝 PATCH status request - params:', { id });
-    
+
     const userId = parseInt(id);
-    
+
     if (isNaN(userId)) {
       return NextResponse.json(
         { success: false, message: 'Invalid user ID' },
@@ -42,22 +27,25 @@ export async function PATCH(
 
     const body = await request.json();
     const { status } = body;
-    
+
     if (!status || !['active', 'inactive', 'pending'].includes(status)) {
       return NextResponse.json(
-        { success: false, message: 'Invalid status. Must be active, inactive, or pending' },
+        {
+          success: false,
+          message: 'Invalid status. Must be active, inactive, or pending',
+        },
         { status: 400 }
       );
     }
 
     client = await pool.connect();
-    
+
     // Check if service user exists in service_users table
     const checkUser = await client.query(
       'SELECT id, user_id FROM service_users WHERE id = $1',
       [userId]
     );
-    
+
     if (checkUser.rows.length === 0) {
       client.release();
       return NextResponse.json(
@@ -95,7 +83,7 @@ export async function PATCH(
         updated_at`,
       [status, userId]
     );
-    
+
     // Also update status in users table if linked
     if (userRecord.user_id) {
       await client.query(
@@ -107,13 +95,13 @@ export async function PATCH(
         [status, userRecord.user_id]
       );
     }
-    
+
     await client.query('COMMIT');
     client.release();
-    
+
     const updatedUser = result.rows[0];
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       success: true,
       user: {
         id: updatedUser.id,
@@ -132,26 +120,27 @@ export async function PATCH(
         created_at: updatedUser.created_at,
         updated_at: updatedUser.updated_at,
       },
-      message: 'Status updated successfully'
+      message: 'Status updated successfully',
     });
-    
-  } catch (error) {
-    console.error('Error updating status:', error);
-    
+  } catch (err) {
+    // ✅ FIX 2: Renamed `error` → `err` (avoids shadowing the global Error constructor)
+    console.error('Error updating status:', err);
+
     if (client) {
       try {
         await client.query('ROLLBACK');
         client.release();
-      } catch (releaseError) {
-        console.error('Error releasing client:', releaseError);
+      } catch (releaseErr) {
+        // ✅ FIX 3: Renamed `releaseError` → `releaseErr`
+        console.error('Error releasing client:', releaseErr);
       }
     }
-    
+
     return NextResponse.json(
-      { 
+      {
         success: false,
-        message: 'Error updating status', 
-        error: String(error) 
+        message: 'Error updating status',
+        error: String(err),
       },
       { status: 500 }
     );

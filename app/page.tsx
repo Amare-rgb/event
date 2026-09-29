@@ -7,10 +7,77 @@ import RegistrationForm from '@/app/components/RegistrationForm';
 import AdminLogin from '@/app/components/AdminLogin';
 import CommentsSection from '@/app/components/CommentsSection';
 
-// Complete Translations - Fixed Amharic
-const translations = {
+// ─── Types ─────────────────────────────────────────────────────
+type LanguageContent = {
+  website: string;
+  contact: string;
+  comment: string;
+  register: string;
+  login: string;
+  close: string;
+  language: string;
+  rightwork: string;
+  menu: string;
+  welcome: string;
+  dreamMore: string;
+  eventAttendance: string;
+  digitalAgency: string;
+  about: string;
+  empowering: string;
+  aboutText: string;
+  highlights: string;
+  highlight1: string;
+  highlight2: string;
+  highlight3: string;
+  highlight4: string;
+  highlight5: string;
+  registerNow: string;
+  registerNowShort: string;
+  joinUs: string;
+  slide1Title: string;
+  slide1Desc: string;
+  slide2Title: string;
+  slide2Desc: string;
+  slide3Title: string;
+  slide3Desc: string;
+  slide4Title: string;
+  slide4Desc: string;
+  empower: string;
+  quickLinks: string;
+  home: string;
+  eventInfo: string;
+  connect: string;
+  privacy: string;
+  terms: string;
+  secure: string;
+  rights: string;
+  backToHome: string;
+  eventDate: string;
+  eventLocation: string;
+  eventTime: string;
+};
+
+// ✅ Image content type
+type ImageContent = {
+  slide1Image: string;
+  slide2Image: string;
+  slide3Image: string;
+  slide4Image: string;
+  heroImage: string;
+  logoImage: string;
+};
+
+type HomeContent = {
+  en: LanguageContent;
+  am: LanguageContent;
+  images: ImageContent;
+};
+
+type Language = 'en' | 'am';
+
+// ─── Fallback translations + images ────────────────────────────
+const fallbackTranslations: HomeContent = {
   en: {
-    // Navbar
     website: 'Website',
     contact: 'Contact',
     comment: 'Comment',
@@ -20,27 +87,23 @@ const translations = {
     language: 'አማርኛ',
     rightwork: 'Rightwork at right time',
     menu: 'Menu',
-    // Hero
     welcome: 'Welcome to',
     dreamMore: 'DreamMore',
     eventAttendance: '✨ Dream More Event Attendance ✨',
     digitalAgency: 'Digital Agency Event 2026',
-    // About
     about: 'About DreamMore',
     empowering: 'Empowering Digital Excellence',
-    aboutText: 'Dream More is a collaborative group of dynamic youth and active team members dedicated to education purpose, digital marketing, and a wide range of tech-related services. We prioritize a client-centred approach, supported by our versatile service offerings and an unwavering commitment to quality. With a focus on reliability, trust, and continuous innovation, our dedicated team adapts to meet the evolving demands of every client, ensuring that we consistently exceed expectations.',
-    // Highlights
+    aboutText:
+      'Dream More is a collaborative group of dynamic youth and active team members dedicated to education purpose, digital marketing, and a wide range of tech-related services.',
     highlights: 'Event Highlights',
     highlight1: 'Network with industry leaders and professionals',
     highlight2: 'Learn from top digital marketing experts',
     highlight3: 'Explore innovative tech solutions and trends',
     highlight4: 'Connect with like-minded professionals',
     highlight5: 'Gain valuable insights for business growth',
-    // Register
     registerNow: 'Register Now for Event 2026',
     registerNowShort: 'Register Now',
     joinUs: 'Join us for an unforgettable experience',
-    // Slider
     slide1Title: 'Welcome To DreamMore Event',
     slide1Desc: 'Join us!',
     slide2Title: 'Naky Hotel',
@@ -49,7 +112,6 @@ const translations = {
     slide3Desc: 'Learn from the best',
     slide4Title: 'Success Stories',
     slide4Desc: 'Be part of it',
-    // Footer
     empower: 'Empower digital agencies.',
     quickLinks: 'Quick Links',
     home: 'Home',
@@ -60,12 +122,11 @@ const translations = {
     secure: 'Secure',
     rights: '© 2026 DreamMore. All rights reserved.',
     backToHome: 'Back to Home',
-    // Event Date
     eventDate: 'July 11, 2026',
     eventLocation: 'DreamMore Events',
+    eventTime: '8:00 (Local Time)',
   },
   am: {
-    // Navbar
     website: 'ድር ጣቢያ',
     contact: 'አግኙን',
     comment: 'አስተያየት',
@@ -75,27 +136,23 @@ const translations = {
     language: 'English',
     rightwork: 'በትክክለኛው ጊዜ ትክክለኛ ስራ',
     menu: 'ምናሌ',
-    // Hero
     welcome: 'እንኳን ወደ',
     dreamMore: 'ድሪም ሞር በደህና መጡ',
     eventAttendance: '✨ የድሪም ሞር ክስተት መገኘት ✨',
     digitalAgency: 'የዲጂታል ኤጀንሲ ዝግጅት 2026',
-    // About
     about: 'ስለ ድሪም ሞር',
     empowering: 'ዲጂታል ልቀትን ማበረታታት',
-    aboutText: 'ድሪም ሞር ለትምህርት ዓላማ፣ ለዲጂታል ግብይት እና ለተለያዩ የቴክኖሎጂ አገልግሎቶች የተሰጠ ተለዋዋጭ ወጣቶች እና ንቁ የቡድን አባላት ትብብር ነው። እኛ ለደንበኞች ያማከለ አካሄድን፣ ሁለገብ የአገልግሎት አቅርቦቶቻችን እና ለጥራት ያለን ቁርጠኝነት ቅድሚያ እንሰጣለን። በአስተማማኝነት፣ በመተማመን እና ቀጣይነት ባለው ፈጠራ ላይ በማተኮር፣ የታመነ ቡድናችን የእያንዳንዱን ደንበኛ ተለዋዋጭ ፍላጎቶች ለማሟላት ይላመዳል።',
-    // Highlights
+    aboutText:
+      'ድሪም ሞር ለትምህርት ዓላማ፣ ለዲጂታል ግብይት እና ለተለያዩ የቴክኖሎጂ አገልግሎቶች የተሰጠ ተለዋዋጭ ወጣቶች እና ንቁ የቡድን አባላት ትብብር ነው።',
     highlights: 'የዝግጅቱ ዋና ዋና ነጥቦች',
     highlight1: 'ከኢንዱስትሪ መሪዎች እና ባለሙያዎች ጋር መገናኘት',
     highlight2: 'ከከፍተኛ የዲጂታል ግብይት ባለሙያዎች መማር',
     highlight3: 'አዳዲስ የቴክኖሎጂ መፍትሄዎችን እና አዝማሚያዎችን ማሰስ',
     highlight4: 'ተመሳሳይ አስተሳሰብ ካላቸው ባለሙያዎች ጋር መገናኘት',
     highlight5: 'ለንግድ እድገት ጠቃሚ ግንዛቤዎችን ማግኘት',
-    // Register
     registerNow: 'ለ2026 ዝግጅት አሁን ይመዝገቡ',
     registerNowShort: 'አሁን ይመዝገቡ',
     joinUs: 'ለማይረሳ ልምድ ይቀላቀሉን',
-    // Slider
     slide1Title: 'እንኳን ወደ ድሪም ሞር ዝግጅት በደህና መጡ',
     slide1Desc: 'ይቀላቀሉን!',
     slide2Title: 'ናኪ ሆቴል',
@@ -104,7 +161,6 @@ const translations = {
     slide3Desc: 'ከምርጦቹ ይማሩ',
     slide4Title: 'የስኬት ታሪኮች',
     slide4Desc: 'የእሱ አካል ይሁኑ',
-    // Footer
     empower: 'ዲጂታል ኤጀንሲዎችን ማበረታታት።',
     quickLinks: 'ፈጣን አገናኞች',
     home: 'መነሻ',
@@ -115,50 +171,99 @@ const translations = {
     secure: 'ደህንነቱ',
     rights: '© 2026 ድሪም ሞር. ሁሉም መብቶች የተጠበቁ ናቸው።',
     backToHome: 'ወደ መነሻ ተመለስ',
-    // Event Date
     eventDate: 'ሐምሌ 11, 2026',
     eventLocation: 'ድሪም ሞር ዝግጅቶች',
     eventTime: '8:00 (የአካባቢ ሰዓት)',
-  }
+  },
+  images: {
+    slide1Image: '/logo.jpg',
+    slide2Image: '/naky.webp',
+    slide3Image: '/people-taking-part-business-event.jpg',
+    slide4Image: '/secuss.webp',
+    heroImage: '/download.jpeg',
+    logoImage: '/logo.jpg',
+  },
 };
 
+// ─── Component ─────────────────────────────────────────────────
 export default function Home() {
+  // ✅ `usersCount` is now used below in the hero section as social proof
   const [usersCount, setUsersCount] = useState(0);
   const [showRegistration, setShowRegistration] = useState(false);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [language, setLanguage] = useState<'en' | 'am'>('en');
+  const [language, setLanguage] = useState<Language>('en');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const sliderRef = useRef<HTMLDivElement>(null);
+
+  // Home content from API
+  const [homeContent, setHomeContent] = useState<HomeContent>(fallbackTranslations);
 
   // Triple-click detection for footer logo
   const [clickCount, setClickCount] = useState(0);
   const [clickTimer, setClickTimer] = useState<NodeJS.Timeout | null>(null);
 
-  const t = translations[language];
+  // Current translation object based on selected language
+  const t = homeContent[language];
+  const img = homeContent.images;
 
-  // Handle triple click on footer logo - Opens AdminLogin modal
+  // ─── Fetch home content (text + images) ───
+  useEffect(() => {
+    let isMounted = true;
+
+    const load = async () => {
+      try {
+        const res = await fetch('/api/admin/home', { cache: 'no-store' });
+        if (!res.ok) throw new Error('Failed to fetch home content');
+        const data = (await res.json()) as HomeContent;
+
+        if (!isMounted) return;
+
+        const merged: HomeContent = {
+          en: { ...fallbackTranslations.en, ...(data.en ?? {}) },
+          am: { ...fallbackTranslations.am, ...(data.am ?? {}) },
+          images: { ...fallbackTranslations.images, ...(data.images ?? {}) },
+        };
+
+        setHomeContent(merged);
+      } catch {
+        // Keep fallback on error
+      }
+    };
+
+    void Promise.resolve().then(load);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void load();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      isMounted = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
+  // ─── Handle triple click on footer logo ───
   const handleFooterLogoClick = () => {
     setClickCount((prev) => prev + 1);
 
-    // Reset click count if more than 3 clicks
-    if (clickCount >= 2) { // Changed to 2 because we're counting from 0
+    if (clickCount >= 2) {
       setClickCount(0);
       if (clickTimer) {
         clearTimeout(clickTimer);
         setClickTimer(null);
       }
-      // Open Admin Login modal instead of redirecting
       setShowAdminLogin(true);
       return;
     }
 
-    // Set timer to reset click count if no more clicks
-    if (clickTimer) {
-      clearTimeout(clickTimer);
-    }
+    if (clickTimer) clearTimeout(clickTimer);
     const timer = setTimeout(() => {
       setClickCount(0);
       setClickTimer(null);
@@ -166,25 +271,62 @@ export default function Home() {
     setClickTimer(timer);
   };
 
-  // Get current slides based on language
-  const getSlides = () => [
-    { id: 1, src: '/logo.jpg', alt: 'DreamMore Logo', title: t.slide1Title, description: t.slide1Desc },
-    { id: 2, src: '/naky.webp', alt: 'Event Image 2', title: t.slide2Title, description: t.slide2Desc },
-    { id: 3, src: '/people-taking-part-business-event.jpg', alt: 'Business Event', title: t.slide3Title, description: t.slide3Desc },
-    { id: 4, src: '/secuss.webp', alt: 'Success', title: t.slide4Title, description: t.slide4Desc }
+  // ─── Slides (using dynamic images from API) ───
+  const slides = [
+    {
+      id: 1,
+      src: img.slide1Image,
+      alt: 'DreamMore Logo',
+      title: t.slide1Title,
+      description: t.slide1Desc,
+    },
+    {
+      id: 2,
+      src: img.slide2Image,
+      alt: 'Event Image 2',
+      title: t.slide2Title,
+      description: t.slide2Desc,
+    },
+    {
+      id: 3,
+      src: img.slide3Image,
+      alt: 'Business Event',
+      title: t.slide3Title,
+      description: t.slide3Desc,
+    },
+    {
+      id: 4,
+      src: img.slide4Image,
+      alt: 'Success',
+      title: t.slide4Title,
+      description: t.slide4Desc,
+    },
   ];
 
-  const slides = getSlides();
-
+  // ─── Fetch users count ───
   useEffect(() => {
-    fetch('/api/admin/users')
-      .then(res => res.json())
-      .then(data => {
-        if (data.users) setUsersCount(data.users.length);
-      })
-      .catch(() => {});
+    let isMounted = true;
+
+    const loadUsers = async () => {
+      try {
+        const res = await fetch('/api/admin/users');
+        const data = await res.json();
+        if (isMounted && data.users) {
+          setUsersCount(data.users.length);
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    void Promise.resolve().then(loadUsers);
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  // ─── Auto-advance slider ───
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
@@ -194,11 +336,13 @@ export default function Home() {
   }, [isPaused, slides.length]);
 
   const goToSlide = (index: number) => setCurrentSlide(index);
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % slides.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  const nextSlide = () =>
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  const prevSlide = () =>
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   const handleRegistrationSuccess = () => {
-    setUsersCount(prev => prev + 1);
+    setUsersCount((prev) => prev + 1);
     setShowRegistration(false);
   };
 
@@ -207,18 +351,18 @@ export default function Home() {
   };
 
   const toggleLanguage = () => {
-    setLanguage(prev => prev === 'en' ? 'am' : 'en');
+    setLanguage((prev) => (prev === 'en' ? 'am' : 'en'));
   };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // If showing comments, render CommentsSection with language prop
+  // ─── Comments view ───
   if (showComments) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50/30">
-        <AdminLogin 
+        <AdminLogin
           isOpen={showAdminLogin}
           onClose={() => setShowAdminLogin(false)}
           onLoginSuccess={handleAdminLoginSuccess}
@@ -229,9 +373,18 @@ export default function Home() {
             <div className="flex items-center justify-between">
               <Link href="/" className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl overflow-hidden">
-                  <Image src="/logo.jpg" alt="Logo" width={40} height={40} className="object-cover" />
+                  <Image
+                    src={img.logoImage}
+                    alt="Logo"
+                    width={40}
+                    height={40}
+                    className="object-cover"
+                    unoptimized
+                  />
                 </div>
-                <span className="text-lg font-extrabold text-gray-900">DreamMore</span>
+                <span className="text-lg font-extrabold text-gray-900">
+                  DreamMore
+                </span>
               </Link>
               <button
                 onClick={() => setShowComments(false)}
@@ -250,7 +403,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50/30">
-      <AdminLogin 
+      <AdminLogin
         isOpen={showAdminLogin}
         onClose={() => setShowAdminLogin(false)}
         onLoginSuccess={handleAdminLoginSuccess}
@@ -261,15 +414,15 @@ export default function Home() {
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6 py-2 md:py-3">
           <div className="flex items-center justify-between">
-            {/* Left - Logo */}
             <Link href="/" className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg overflow-hidden shadow-md flex-shrink-0">
-                <Image 
-                  src="/logo.jpg" 
-                  alt="Logo" 
-                  width={40} 
+                <Image
+                  src={img.logoImage}
+                  alt="Logo"
+                  width={40}
                   height={40}
                   className="object-cover w-full h-full"
+                  unoptimized
                 />
               </div>
               <div className="flex flex-col">
@@ -314,17 +467,26 @@ export default function Home() {
                 {t.comment}
               </button>
 
-              {/* Login Button */}
               <Link
                 href="/login"
                 className="bg-green-50 hover:bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full transition-all duration-300 whitespace-nowrap flex items-center gap-1.5"
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                <svg
+                  className="w-3 h-3"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                  />
                 </svg>
                 {t.login}
               </Link>
-              
+
               <button
                 onClick={() => setShowRegistration(!showRegistration)}
                 className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white text-xs px-4 py-1.5 rounded-full shadow-md hover:shadow-lg transition-all duration-300 whitespace-nowrap"
@@ -384,18 +546,27 @@ export default function Home() {
                 {t.comment}
               </button>
 
-              {/* Mobile Login Button */}
               <Link
                 href="/login"
                 className="bg-green-50 hover:bg-green-100 text-green-700 text-sm px-4 py-2 rounded-lg transition-all duration-300 flex items-center gap-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
+                  />
                 </svg>
                 {t.login}
               </Link>
-              
+
               <button
                 onClick={() => {
                   setShowRegistration(!showRegistration);
@@ -414,7 +585,10 @@ export default function Home() {
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 md:py-8">
         {showRegistration ? (
           <div className="py-4 md:py-8">
-            <RegistrationForm onSuccess={handleRegistrationSuccess} language={language} />
+            <RegistrationForm
+              onSuccess={handleRegistrationSuccess}
+              language={language}
+            />
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
@@ -427,25 +601,66 @@ export default function Home() {
                     {t.dreamMore}
                   </span>
                 </h1>
-                
+
                 <div className="mt-2 md:mt-4 mb-2">
                   <p className="text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-500 to-orange-600 animate-pulse">
                     {t.eventAttendance}
                   </p>
                   <div className="flex justify-center lg:justify-start items-center gap-1 md:gap-2 mt-1 md:mt-2">
-                    <span className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></span>
-                    <span className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></span>
-                    <span className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-300 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></span>
-                    <span className="text-[10px] sm:text-xs md:text-sm text-gray-600 font-medium mx-1 md:mx-2">|</span>
-                    <span className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-300 rounded-full animate-bounce" style={{ animationDelay: '0.6s' }}></span>
-                    <span className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0.8s' }}></span>
-                    <span className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-500 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></span>
+                    <span
+                      className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-500 rounded-full animate-bounce"
+                      style={{ animationDelay: '0s' }}
+                    ></span>
+                    <span
+                      className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.2s' }}
+                    ></span>
+                    <span
+                      className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-300 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.4s' }}
+                    ></span>
+                    <span className="text-[10px] sm:text-xs md:text-sm text-gray-600 font-medium mx-1 md:mx-2">
+                      |
+                    </span>
+                    <span
+                      className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-300 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.6s' }}
+                    ></span>
+                    <span
+                      className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-400 rounded-full animate-bounce"
+                      style={{ animationDelay: '0.8s' }}
+                    ></span>
+                    <span
+                      className="inline-block w-1 h-1 md:w-2 md:h-2 bg-orange-500 rounded-full animate-bounce"
+                      style={{ animationDelay: '1s' }}
+                    ></span>
                   </div>
                 </div>
-                
+
                 <p className="text-xs sm:text-sm md:text-base lg:text-lg text-gray-700 max-w-3xl lg:max-w-full mx-auto lg:mx-0 font-medium">
                   {t.digitalAgency}
                 </p>
+
+                {/* ✅ NEW: Users count social proof badge */}
+                {usersCount > 0 && (
+                  <div className="mt-3 md:mt-4 inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-orange-200 rounded-full px-3 py-1.5 shadow-sm">
+                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 text-white text-[10px]">
+                      <svg
+                        className="w-3 h-3"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                      </svg>
+                    </span>
+                    <span className="text-xs sm:text-sm font-medium text-gray-700">
+                      <span className="font-bold text-orange-600">
+                        {usersCount}
+                      </span>{' '}
+                      {language === 'en' ? 'members registered' : 'አባላት ተመዝግበዋል'}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* About Section */}
@@ -455,8 +670,12 @@ export default function Home() {
                     <i className="fas fa-rocket text-orange-600 text-sm md:text-lg"></i>
                   </div>
                   <div>
-                    <h2 className="text-sm sm:text-base md:text-xl font-bold text-gray-900">{t.about}</h2>
-                    <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-500">{t.empowering}</p>
+                    <h2 className="text-sm sm:text-base md:text-xl font-bold text-gray-900">
+                      {t.about}
+                    </h2>
+                    <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-500">
+                      {t.empowering}
+                    </p>
                   </div>
                 </div>
                 <p className="text-[10px] sm:text-xs md:text-sm text-gray-700 leading-relaxed">
@@ -464,7 +683,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Event Description List */}
+              {/* Event Highlights */}
               <div className="bg-gradient-to-br from-white to-orange-50/50 rounded-2xl md:rounded-3xl shadow-xl p-3 sm:p-4 md:p-6 border border-orange-100/50">
                 <h3 className="text-sm sm:text-base md:text-lg font-bold text-gray-900 mb-2 md:mb-3 flex items-center gap-2">
                   <i className="fas fa-list-check text-orange-500"></i>
@@ -509,11 +728,12 @@ export default function Home() {
             {/* Right Side - Image & Slider */}
             <div className="space-y-3 md:space-y-4">
               {/* Main Slider */}
-              <div className="relative w-full overflow-hidden bg-gray-900 rounded-2xl md:rounded-3xl shadow-xl"
+              <div
+                className="relative w-full overflow-hidden bg-gray-900 rounded-2xl md:rounded-3xl shadow-xl"
                 onMouseEnter={() => setIsPaused(true)}
                 onMouseLeave={() => setIsPaused(false)}
               >
-                <div 
+                <div
                   ref={sliderRef}
                   className="flex transition-transform duration-700 ease-in-out"
                   style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -530,6 +750,7 @@ export default function Home() {
                         className="object-contain"
                         priority={slide.id === 1}
                         sizes="100vw"
+                        unoptimized
                       />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center pointer-events-none">
                         <div className="text-center text-white px-4">
@@ -576,20 +797,25 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* download.jpeg Image */}
+              {/* Hero Image (dynamic) */}
               <div className="relative w-full overflow-hidden bg-gray-900 rounded-xl md:rounded-2xl shadow-lg h-[160px] sm:h-[180px] md:h-[250px] lg:h-[300px]">
                 <Image
-                  src="/download.jpeg"
+                  src={img.heroImage}
                   alt="Welcome to DreamMore Event"
                   fill
                   className="object-cover"
                   priority
                   sizes="100vw"
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end">
                   <div className="p-3 md:p-4 text-white w-full">
-                    <h3 className="text-xs sm:text-sm md:text-lg font-bold drop-shadow-lg">DreamMore Event 2026</h3>
-                    <p className="text-[8px] sm:text-[10px] md:text-sm text-white/90 drop-shadow-lg">{t.joinUs}</p>
+                    <h3 className="text-xs sm:text-sm md:text-lg font-bold drop-shadow-lg">
+                      DreamMore Event 2026
+                    </h3>
+                    <p className="text-[8px] sm:text-[10px] md:text-sm text-white/90 drop-shadow-lg">
+                      {t.joinUs}
+                    </p>
                     <button
                       onClick={() => setShowRegistration(true)}
                       className="mt-1 md:mt-2 bg-orange-500 hover:bg-orange-600 text-white text-[8px] sm:text-[10px] md:text-xs px-2 sm:px-3 md:px-5 py-1 md:py-2 rounded-full transition-all duration-300 flex items-center gap-1 sm:gap-2 transform hover:scale-105"
@@ -610,19 +836,19 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-2 md:py-3">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             <div className="col-span-2 md:col-span-1">
-              {/* Footer Logo with Triple Click Handler - Opens AdminLogin modal */}
-              <div 
+              <div
                 className="flex items-center gap-1.5 mb-0.5 cursor-pointer group"
                 onClick={handleFooterLogoClick}
                 title="Triple-click to open Admin Login"
               >
                 <div className="w-6 h-6 rounded-lg overflow-hidden bg-white/20 group-hover:bg-white/30 transition-all duration-300">
-                  <Image 
-                    src="/logo.jpg" 
-                    alt="DM" 
-                    width={24} 
+                  <Image
+                    src={img.logoImage}
+                    alt="DM"
+                    width={24}
                     height={24}
                     className="object-cover w-full h-full"
+                    unoptimized
                   />
                 </div>
                 <div>
@@ -634,27 +860,37 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-              <p className="text-[7px] md:text-[10px] text-white/80">{t.empower}</p>
+              <p className="text-[7px] md:text-[10px] text-white/80">
+                {t.empower}
+              </p>
             </div>
 
             <div>
-              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">{t.quickLinks}</h4>
+              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">
+                {t.quickLinks}
+              </h4>
               <ul className="space-y-0.5 text-[7px] md:text-[10px]">
                 <li>
-                  <Link href="/" className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5">
+                  <Link
+                    href="/"
+                    className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5"
+                  >
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
                     {t.home}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5">
+                  <Link
+                    href="/contact"
+                    className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5"
+                  >
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
                     {t.contact}
                   </Link>
                 </li>
                 <li>
-                  <button 
-                    onClick={() => setShowRegistration(true)} 
+                  <button
+                    onClick={() => setShowRegistration(true)}
                     className="text-white/80 hover:text-white transition-colors flex items-center gap-0.5"
                   >
                     <i className="fas fa-chevron-right text-[4px] text-white/60"></i>
@@ -665,7 +901,9 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">{t.eventInfo}</h4>
+              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">
+                {t.eventInfo}
+              </h4>
               <ul className="space-y-0.5 text-[7px] md:text-[10px] text-white/80">
                 <li className="flex items-center gap-0.5">
                   <i className="fas fa-calendar text-white/60 w-2 text-[5px]"></i>
@@ -677,20 +915,36 @@ export default function Home() {
                 </li>
                 <li className="flex items-center gap-0.5">
                   <i className="fas fa-clock text-white/60 w-2 text-[5px]"></i>
+                  <span>{t.eventTime}</span>
                 </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">{t.connect}</h4>
+              <h4 className="text-[9px] md:text-xs font-semibold text-white mb-0.5">
+                {t.connect}
+              </h4>
               <div className="flex gap-1.5">
-                <a href="https://t.me/Dreammore21" target="_blank" rel="noopener noreferrer" className="w-5 h-5 md:w-6 md:h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors text-white text-[7px] md:text-[8px]">
+                <a
+                  href="https://t.me/Dreammore21"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-5 h-5 md:w-6 md:h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors text-white text-[7px] md:text-[8px]"
+                >
                   <i className="fab fa-telegram-plane"></i>
                 </a>
-                <a href="https://www.tiktok.com/@dreammorecompany" target="_blank" rel="noopener noreferrer" className="w-5 h-5 md:w-6 md:h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors text-white text-[7px] md:text-[8px]">
+                <a
+                  href="https://www.tiktok.com/@dreammorecompany"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-5 h-5 md:w-6 md:h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors text-white text-[7px] md:text-[8px]"
+                >
                   <i className="fab fa-tiktok"></i>
                 </a>
-                <a href="#" className="w-5 h-5 md:w-6 md:h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors text-white text-[7px] md:text-[8px]">
+                <a
+                  href="#"
+                  className="w-5 h-5 md:w-6 md:h-6 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors text-white text-[7px] md:text-[8px]"
+                >
                   <i className="fab fa-youtube"></i>
                 </a>
               </div>
@@ -700,8 +954,12 @@ export default function Home() {
           <div className="border-t border-white/20 mt-1.5 pt-1.5 flex flex-col sm:flex-row justify-between items-center gap-1">
             <p className="text-[6px] md:text-[8px] text-white/80">{t.rights}</p>
             <div className="flex items-center gap-2 md:gap-3 text-[6px] md:text-[8px] text-white/80">
-              <Link href="#" className="hover:text-white transition-colors">{t.privacy}</Link>
-              <Link href="#" className="hover:text-white transition-colors">{t.terms}</Link>
+              <Link href="#" className="hover:text-white transition-colors">
+                {t.privacy}
+              </Link>
+              <Link href="#" className="hover:text-white transition-colors">
+                {t.terms}
+              </Link>
               <span className="flex items-center gap-0.5">
                 <i className="fas fa-shield-alt text-white/60 text-[5px] md:text-[6px]"></i>
                 {t.secure}
@@ -713,20 +971,42 @@ export default function Home() {
 
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-20px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        .fade-in { animation: fadeIn 0.8s ease-out; }
+        .fade-in {
+          animation: fadeIn 0.8s ease-out;
+        }
         @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
         }
-        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .animate-pulse {
+          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
         @keyframes bounce {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
+          0%,
+          100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-6px);
+          }
         }
-        .animate-bounce { animation: bounce 1s infinite; }
+        .animate-bounce {
+          animation: bounce 1s infinite;
+        }
       `}</style>
     </div>
   );

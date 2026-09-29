@@ -137,7 +137,7 @@ export async function GET(request: NextRequest) {
 
 // ===== POST HANDLER =====
 export async function POST(request: NextRequest) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   let client: any = undefined;
 
   try {
@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
 
 // ===== DELETE HANDLER =====
 export async function DELETE(request: NextRequest) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   let client: any = undefined;
 
   try {

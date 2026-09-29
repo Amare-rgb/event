@@ -11,47 +11,35 @@ interface LoginPageProps {
 // Translations
 const translations = {
   en: {
-    // Header
     welcomeBack: 'Welcome Back',
     loginTo: 'Login to your DreamMore account',
-    // Form Labels
     fullName: 'Full Name *',
     email: 'Email Address *',
-    // Placeholders
     fullNamePlaceholder: 'Abebe Kebede',
     emailPlaceholder: 'abebe@dreammore.com',
-    // Buttons
     login: 'Login',
     loggingIn: 'Logging in...',
-    // Messages
     loginSuccess: 'Login Successful!',
     redirecting: 'Redirecting to DreamMore official website...',
     nameError: 'Please enter your full name',
     emailError: 'Please enter a valid email address',
     networkError: 'Network error. Please try again.',
-    // Footer
     needHelp: 'Need help? Contact support',
   },
   am: {
-    // Header
     welcomeBack: 'እንኳን በደህና መጡ',
     loginTo: 'ወደ DreamMore አካውንትዎ ይግቡ',
-    // Form Labels
     fullName: 'ሙሉ ስም *',
     email: 'ኢሜይል አድራሻ *',
-    // Placeholders
     fullNamePlaceholder: 'አበበ ከበደ',
     emailPlaceholder: 'abebe@dreammore.com',
-    // Buttons
     login: 'ግባ',
     loggingIn: 'እየገባ ነው...',
-    // Messages
     loginSuccess: 'መግባት ተሳክቷል!',
     redirecting: 'ወደ DreamMore ኦፊሻል ድርጣቢያ እየተዘዋወሩ ነው...',
     nameError: 'እባክዎ ሙሉ ስምዎን ያስገቡ',
     emailError: 'እባክዎ ትክክለኛ ኢሜይል ያስገቡ',
     networkError: 'የአውታረ መረብ ችግር። እባክዎ እንደገና ይሞክሩ።',
-    // Footer
     needHelp: 'እርዳታ ይፈልጋሉ? ድጋፍን ያግኙ',
   }
 };
@@ -70,19 +58,19 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
 
   const validateForm = () => {
     const newErrors: {[key: string]: string} = {};
-    
+
     // Full Name - required
     if (!formData.fullName.trim()) {
       newErrors.fullName = t.nameError;
     }
-    
+
     // Email - required and valid format
     if (!formData.email.trim()) {
       newErrors.email = t.emailError;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = t.emailError;
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,11 +85,11 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setLoading(true);
     setMessage({ text: '', type: '' });
     setIsSuccess(false);
@@ -110,23 +98,24 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
       // Simulate login API call
       // In production, you would validate against your backend
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Successful login
-      setMessage({ 
-        text: '✅ ' + t.loginSuccess, 
-        type: 'success' 
+      setMessage({
+        text: '✅ ' + t.loginSuccess,
+        type: 'success'
       });
       setIsSuccess(true);
-      
+
       // Redirect to official website after success
       setTimeout(() => {
         window.location.href = 'https://www.dreammoredigitals.com/';
       }, 2000);
-      
-    } catch (error) {
-      setMessage({ 
-        text: '❌ ' + t.networkError, 
-        type: 'error' 
+
+    } catch {
+      // ✅ FIX: Removed unused `error` variable
+      setMessage({
+        text: '❌ ' + t.networkError,
+        type: 'error'
       });
     } finally {
       setLoading(false);
@@ -140,15 +129,15 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
         <div className="bg-white rounded-2xl shadow-xl p-8 relative overflow-hidden">
           {/* Decorative Top Bar */}
           <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-orange-500 via-amber-500 to-orange-600"></div>
-          
+
           {/* Logo and Header */}
           <div className="text-center mb-8 mt-2">
             <div className="flex justify-center mb-4">
               <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg ring-4 ring-orange-100">
-                <Image 
-                  src="/logo.jpg" 
-                  alt="DreamMore Logo" 
-                  width={80} 
+                <Image
+                  src="/logo.jpg"
+                  alt="DreamMore Logo"
+                  width={80}
                   height={80}
                   className="object-cover w-full h-full"
                 />
@@ -168,8 +157,8 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
           {/* Success/Error Message */}
           {message.text && (
             <div className={`mb-4 p-3 rounded-lg text-sm ${
-              message.type === 'success' 
-                ? 'bg-green-50 text-green-700 border border-green-200' 
+              message.type === 'success'
+                ? 'bg-green-50 text-green-700 border border-green-200'
                 : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
               <div className="flex items-center gap-2">
@@ -208,7 +197,7 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
                   <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
                 )}
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   {t.email}
@@ -228,7 +217,7 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
                   <p className="text-red-500 text-xs mt-1">{errors.email}</p>
                 )}
               </div>
-              
+
               <button
                 type="submit"
                 disabled={loading}
@@ -269,7 +258,7 @@ export default function LoginPage({ language = 'en' }: LoginPageProps) {
 
           {/* Footer */}
           <div className="mt-6 text-center border-t border-gray-200 pt-4">
-            <Link 
+            <Link
               href="mailto:support@dreammoredigitals.com"
               className="text-xs text-gray-500 hover:text-orange-600 transition"
             >

@@ -11,7 +11,6 @@ neonConfig.webSocketConstructor = ws;
 // from spawning a new Pool on every file save.
 // ============================================
 declare global {
-  // eslint-disable-next-line no-var
   var _pgPool: Pool | undefined;
 }
 

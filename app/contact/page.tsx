@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 // Translations
 const translations = {
@@ -12,7 +12,8 @@ const translations = {
     home: 'Home',
     // Hero
     getInTouch: 'Get in Touch',
-    heroDescription: 'Have questions about our event or services? We\'d love to hear from you! Reach out to us through any of the channels below.',
+    heroDescription:
+      "Have questions about our event or services? We'd love to hear from you! Reach out to us through any of the channels below.",
     // Contact Info
     contactInformation: 'Contact Information',
     email: 'Email',
@@ -28,7 +29,7 @@ const translations = {
     message: 'Message *',
     enterName: 'Enter your name',
     enterEmail: 'Enter your email',
-    enterSubject: 'What\'s this about?',
+    enterSubject: "What's this about?",
     writeMessage: 'Write your message here...',
     send: 'Send Message',
     sending: 'Sending...',
@@ -47,7 +48,8 @@ const translations = {
     home: 'መነሻ',
     // Hero
     getInTouch: 'ያግኙን',
-    heroDescription: 'ስለ ዝግጅታችን ወይም አገልግሎቶቻችን ጥያቄ አለዎት? ከእኛ ጋር መገናኘት እንወዳለን! ከታች ባሉት ማንኛውም ቻናሎች ያግኙን።',
+    heroDescription:
+      'ስለ ዝግጅታችን ወይም አገልግሎቶቻችን ጥያቄ አለዎት? ከእኛ ጋር መገናኘት እንወዳለን! ከታች ባሉት ማንኛውም ቻናሎች ያግኙን።',
     // Contact Info
     contactInformation: 'የእውቂያ መረጃ',
     email: 'ኢሜይል',
@@ -75,7 +77,7 @@ const translations = {
     findUs: 'ያግኙን',
     // Footer
     rightwork: 'በትክክለኛው ጊዜ ትክክለኛ ስራ',
-  }
+  },
 };
 
 export default function ContactPage() {
@@ -84,24 +86,29 @@ export default function ContactPage() {
     name: '',
     email: '',
     subject: '',
-    message: ''
+    message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<{ type: 'success' | 'error' | null; message: string }>({
+  const [submitStatus, setSubmitStatus] = useState<{
+    type: 'success' | 'error' | null;
+    message: string;
+  }>({
     type: null,
-    message: ''
+    message: '',
   });
 
   const t = translations[language];
 
   const toggleLanguage = () => {
-    setLanguage(prev => prev === 'en' ? 'am' : 'en');
+    setLanguage((prev) => (prev === 'en' ? 'am' : 'en'));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -111,16 +118,17 @@ export default function ContactPage() {
     setSubmitStatus({ type: null, message: '' });
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
       setSubmitStatus({
         type: 'success',
-        message: t.successMessage
+        message: t.successMessage,
       });
       setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
+    } catch {
+      // ✅ FIX 2: Removed unused `error` variable
       setSubmitStatus({
         type: 'error',
-        message: t.errorMessage
+        message: t.errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -128,11 +136,36 @@ export default function ContactPage() {
   };
 
   const contactInfo = [
-    { icon: '', title: t.email, details: 'suport@dreammoredigitals.com', link: 'mailto:suport@dreammoredigitals.com' },
-    { icon: '', title: t.phone, details: '+251 993 132 122', link: 'tel:+251993132122' },
-    { icon: '', title: t.whatsapp, details: '+251 993 132 122', link: 'https://wa.me/251993132122' },
-    { icon: '', title: t.telegram, details: '@Dreammore21', link: 'https://t.me/Dreammore21' },
-    { icon: '', title: t.location, details: language === 'en' ? 'Bahirdar, Ethiopia' : 'ባህር ዳር፣ ኢትዮጵያ', link: 'https://maps.google.com/?q=Bahirdar,Ethiopia' }
+    {
+      icon: '📧',
+      title: t.email,
+      details: 'suport@dreammoredigitals.com',
+      link: 'mailto:suport@dreammoredigitals.com',
+    },
+    {
+      icon: '📞',
+      title: t.phone,
+      details: '+251 993 132 122',
+      link: 'tel:+251993132122',
+    },
+    {
+      icon: '💬',
+      title: t.whatsapp,
+      details: '+251 993 132 122',
+      link: 'https://wa.me/251993132122',
+    },
+    {
+      icon: '📨',
+      title: t.telegram,
+      details: '@Dreammore21',
+      link: 'https://t.me/Dreammore21',
+    },
+    {
+      icon: '📍',
+      title: t.location,
+      details: language === 'en' ? 'Bahirdar, Ethiopia' : 'ባህር ዳር፣ ኢትዮጵያ',
+      link: 'https://maps.google.com/?q=Bahirdar,Ethiopia',
+    },
   ];
 
   return (
@@ -143,16 +176,28 @@ export default function ContactPage() {
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden shadow-md">
-                <Image src="/logo.jpg" alt="Logo" width={48} height={48} className="object-cover w-full h-full" />
+                <Image
+                  src="/logo.jpg"
+                  alt="Logo"
+                  width={48}
+                  height={48}
+                  className="object-cover w-full h-full"
+                />
               </div>
               <div className="hidden xs:block">
-                <span className="text-lg md:text-xl font-extrabold text-gray-900">DreamMore</span>
-                <span className="hidden sm:block text-[10px] text-gray-500">{t.rightwork}</span>
+                <span className="text-lg md:text-xl font-extrabold text-gray-900">
+                  DreamMore
+                </span>
+                <span className="hidden sm:block text-[10px] text-gray-500">
+                  {t.rightwork}
+                </span>
               </div>
             </Link>
 
             <div className="hidden lg:block text-center">
-              <span className="text-sm font-bold text-orange-600">{t.contactUs}</span>
+              <span className="text-sm font-bold text-orange-600">
+                {t.contactUs}
+              </span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -162,14 +207,16 @@ export default function ContactPage() {
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2"
               >
                 <span>{language === 'en' ? '🇪🇹' : '🇬🇧'}</span>
-                <span className="hidden xs:inline">{language === 'en' ? 'አማርኛ' : 'English'}</span>
+                <span className="hidden xs:inline">
+                  {language === 'en' ? 'አማርኛ' : 'English'}
+                </span>
               </button>
 
               <Link
                 href="/"
                 className="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-4 py-2 rounded-full shadow-md hover:shadow-lg transition-all flex items-center gap-2"
               >
-                <span>Home</span>
+                <span>🏠</span>
                 <span className="hidden xs:inline">{t.home}</span>
               </Link>
             </div>
@@ -195,7 +242,7 @@ export default function ContactPage() {
           <div className="space-y-4">
             <div className="bg-white rounded-2xl shadow-lg p-5 md:p-6 border border-gray-100">
               <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span></span> {t.contactInformation}
+                <span>📋</span> {t.contactInformation}
               </h2>
               <div className="space-y-2">
                 {contactInfo.map((item, index) => (
@@ -203,19 +250,27 @@ export default function ContactPage() {
                     key={index}
                     href={item.link}
                     target={item.link.startsWith('http') ? '_blank' : undefined}
-                    rel={item.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    rel={
+                      item.link.startsWith('http')
+                        ? 'noopener noreferrer'
+                        : undefined
+                    }
                     className="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-50 transition group"
                   >
                     <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-lg group-hover:scale-110 transition">
                       {item.icon}
                     </div>
                     <div className="flex-1">
-                      <p className="text-xs font-semibold text-gray-500 uppercase">{item.title}</p>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">
+                        {item.title}
+                      </p>
                       <p className="text-sm text-gray-900 font-medium group-hover:text-orange-600 transition">
                         {item.details}
                       </p>
                     </div>
-                    <span className="text-gray-300 group-hover:text-orange-500">→</span>
+                    <span className="text-gray-300 group-hover:text-orange-500">
+                      →
+                    </span>
                   </a>
                 ))}
               </div>
@@ -224,17 +279,32 @@ export default function ContactPage() {
             {/* Social Links */}
             <div className="bg-gradient-to-br from-orange-50 to-amber-50/50 rounded-2xl shadow-lg p-5 md:p-6 border border-orange-100/50">
               <h3 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <span></span> {t.connectWithUs}
+                <span>🌐</span> {t.connectWithUs}
               </h3>
               <div className="flex flex-wrap gap-2">
-                <a href="https://t.me/Dreammore21" target="_blank" rel="noopener noreferrer" className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2">
-                  <span></span> {t.telegram}
+                <a
+                  href="https://t.me/Dreammore21"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2"
+                >
+                  <span>📨</span> {t.telegram}
                 </a>
-                <a href="https://wa.me/251993132122" target="_blank" rel="noopener noreferrer" className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2">
-                  <span></span> {t.whatsapp}
+                <a
+                  href="https://wa.me/251993132122"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2"
+                >
+                  <span>💬</span> {t.whatsapp}
                 </a>
-                <a href="https://www.tiktok.com/@dreammorecompany" target="_blank" rel="noopener noreferrer" className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2">
-                  <span></span> TikTok
+                <a
+                  href="https://www.tiktok.com/@dreammorecompany"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white px-4 py-2 rounded-full shadow hover:shadow-lg transition hover:scale-105 text-sm flex items-center gap-2"
+                >
+                  <span>🎵</span> TikTok
                 </a>
               </div>
             </div>
@@ -245,10 +315,12 @@ export default function ContactPage() {
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <span>✉️</span> {t.sendMessage}
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t.yourName}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t.yourName}
+                </label>
                 <input
                   type="text"
                   name="name"
@@ -261,7 +333,9 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t.emailAddress}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t.emailAddress}
+                </label>
                 <input
                   type="email"
                   name="email"
@@ -274,7 +348,9 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t.subject}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t.subject}
+                </label>
                 <input
                   type="text"
                   name="subject"
@@ -286,7 +362,9 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t.message}</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {t.message}
+                </label>
                 <textarea
                   name="message"
                   value={formData.message}
@@ -300,13 +378,17 @@ export default function ContactPage() {
 
               {submitStatus.type === 'success' && (
                 <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
-                  <p className="text-green-700 text-sm">{submitStatus.message}</p>
+                  <p className="text-green-700 text-sm">
+                    {submitStatus.message}
+                  </p>
                 </div>
               )}
 
               {submitStatus.type === 'error' && (
                 <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                  <p className="text-red-700 text-sm">{submitStatus.message}</p>
+                  <p className="text-red-700 text-sm">
+                    {submitStatus.message}
+                  </p>
                 </div>
               )}
 
@@ -350,7 +432,8 @@ export default function ContactPage() {
               ></iframe>
             </div>
             <p className="text-xs text-gray-500 mt-2 text-center">
-              📍 {language === 'en' ? 'Bahirdar, Ethiopia' : 'ባህር ዳር፣ ኢትዮጵያ'}
+              📍{' '}
+              {language === 'en' ? 'Bahirdar, Ethiopia' : 'ባህር ዳር፣ ኢትዮጵያ'}
             </p>
           </div>
         </div>
@@ -358,18 +441,34 @@ export default function ContactPage() {
 
       <style jsx>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
-        .fade-in { animation: fadeIn 0.6s ease-out; }
-        
+        .fade-in {
+          animation: fadeIn 0.6s ease-out;
+        }
+
         @media (min-width: 480px) {
-          .xs\\:block { display: block; }
-          .xs\\:inline { display: inline; }
+          .xs\\:block {
+            display: block;
+          }
+          .xs\\:inline {
+            display: inline;
+          }
         }
         @media (max-width: 479px) {
-          .xs\\:block { display: none; }
-          .xs\\:inline { display: none; }
+          .xs\\:block {
+            display: none;
+          }
+          .xs\\:inline {
+            display: none;
+          }
         }
       `}</style>
     </div>

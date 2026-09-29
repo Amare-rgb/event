@@ -3,23 +3,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 
-interface ServiceUserRow {
-  id: number;
-  user_id: number | null;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  gender: string;
-  course: string;
-  organization: string;
-  experience: string;
-  status: string;
-  registered_at: Date;
-  created_at: Date;
-  updated_at: Date;
-}
+// ✅ FIX 1: Removed unused `ServiceUserRow` interface
+// (It was defined but never referenced anywhere in this file.)
 
 // GET - Fetch a single service user
 export async function GET(
@@ -27,13 +12,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   let client;
-  
+
   try {
     const { id } = await params;
     console.log('📝 GET single request - params:', { id });
-    
+
     const userId = parseInt(id);
-    
+
     if (isNaN(userId)) {
       return NextResponse.json(
         { success: false, message: 'Invalid user ID' },
@@ -42,7 +27,7 @@ export async function GET(
     }
 
     client = await pool.connect();
-    
+
     const result = await client.query(
       `SELECT 
         id, 
@@ -64,19 +49,19 @@ export async function GET(
       WHERE id = $1`,
       [userId]
     );
-    
+
     client.release();
-    
+
     if (result.rows.length === 0) {
       return NextResponse.json(
         { success: false, message: 'Service user not found' },
         { status: 404 }
       );
     }
-    
+
     const user = result.rows[0];
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       success: true,
       user: {
         id: user.id,
@@ -94,25 +79,26 @@ export async function GET(
         registered_at: user.registered_at,
         created_at: user.created_at,
         updated_at: user.updated_at,
-      }
+      },
     });
-    
-  } catch (error) {
-    console.error('Error fetching service user:', error);
-    
+  } catch (err) {
+    // ✅ FIX 2: Renamed `error` → `err`
+    console.error('Error fetching service user:', err);
+
     if (client) {
       try {
         client.release();
-      } catch (releaseError) {
-        console.error('Error releasing client:', releaseError);
+      } catch (releaseErr) {
+        // ✅ FIX 3: Renamed `releaseError` → `releaseErr`
+        console.error('Error releasing client:', releaseErr);
       }
     }
-    
+
     return NextResponse.json(
-      { 
+      {
         success: false,
         message: 'Error fetching service user',
-        error: String(error) 
+        error: String(err),
       },
       { status: 500 }
     );
@@ -125,13 +111,13 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   let client;
-  
+
   try {
     const { id } = await params;
     console.log('📝 PUT request - params:', { id });
-    
+
     const userId = parseInt(id);
-    
+
     if (isNaN(userId)) {
       return NextResponse.json(
         { success: false, message: 'Invalid user ID' },
@@ -140,26 +126,26 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { 
-      first_name, 
-      last_name, 
-      email, 
-      phone, 
-      address, 
-      gender, 
+    const {
+      first_name,
+      last_name,
+      email,
+      phone,
+      address,
+      gender,
       course,
       organization,
       experience,
-      status 
+      status,
     } = body;
 
     client = await pool.connect();
-    
+
     const checkUser = await client.query(
       'SELECT id FROM service_users WHERE id = $1',
       [userId]
     );
-    
+
     if (checkUser.rows.length === 0) {
       client.release();
       return NextResponse.json(
@@ -200,25 +186,25 @@ export async function PUT(
         created_at,
         updated_at`,
       [
-        first_name, 
-        last_name, 
-        email, 
-        phone, 
-        address, 
-        gender, 
+        first_name,
+        last_name,
+        email,
+        phone,
+        address,
+        gender,
         course,
         organization || '',
-        experience || '', 
+        experience || '',
         status || 'pending',
-        userId
+        userId,
       ]
     );
-    
+
     client.release();
-    
+
     const updatedUser = result.rows[0];
-    
-    return NextResponse.json({ 
+
+    return NextResponse.json({
       success: true,
       user: {
         id: updatedUser.id,
@@ -237,25 +223,25 @@ export async function PUT(
         created_at: updatedUser.created_at,
         updated_at: updatedUser.updated_at,
       },
-      message: 'Service user updated successfully'
+      message: 'Service user updated successfully',
     });
-    
-  } catch (error) {
-    console.error('Error updating service user:', error);
-    
+  } catch (err) {
+    // ✅ FIX 4: Renamed `error` → `err`
+    console.error('Error updating service user:', err);
+
     if (client) {
       try {
         client.release();
-      } catch (releaseError) {
-        console.error('Error releasing client:', releaseError);
+      } catch (releaseErr) {
+        console.error('Error releasing client:', releaseErr);
       }
     }
-    
+
     return NextResponse.json(
-      { 
+      {
         success: false,
         message: 'Error updating service user',
-        error: String(error) 
+        error: String(err),
       },
       { status: 500 }
     );
@@ -268,14 +254,14 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   let client;
-  
+
   try {
     console.log('📝 DELETE request received');
-    
+
     const { id } = await params;
     console.log('📝 params.id:', id);
     console.log('📝 request.url:', request.url);
-    
+
     if (!id) {
       console.log('❌ No ID found in params');
       return NextResponse.json(
@@ -286,7 +272,7 @@ export async function DELETE(
 
     const userId = parseInt(id);
     console.log('📝 Parsed userId:', userId);
-    
+
     if (isNaN(userId)) {
       console.log('❌ Invalid ID - not a number');
       return NextResponse.json(
@@ -298,12 +284,12 @@ export async function DELETE(
     console.log('✅ Valid ID:', userId);
 
     client = await pool.connect();
-    
+
     const checkUser = await client.query(
       'SELECT id FROM service_users WHERE id = $1',
       [userId]
     );
-    
+
     if (checkUser.rows.length === 0) {
       console.log('❌ Service user not found with ID:', userId);
       client.release();
@@ -315,11 +301,8 @@ export async function DELETE(
 
     console.log('✅ Service user found, deleting...');
 
-    await client.query(
-      'DELETE FROM service_users WHERE id = $1',
-      [userId]
-    );
-    
+    await client.query('DELETE FROM service_users WHERE id = $1', [userId]);
+
     client.release();
 
     console.log('✅ Service user deleted successfully:', userId);
@@ -327,25 +310,25 @@ export async function DELETE(
     return NextResponse.json({
       success: true,
       message: 'Service user deleted successfully',
-      deletedId: userId
+      deletedId: userId,
     });
-    
-  } catch (error) {
-    console.error('❌ Delete error:', error);
-    
+  } catch (err) {
+    // ✅ FIX 5: Renamed `error` → `err`
+    console.error('❌ Delete error:', err);
+
     if (client) {
       try {
         client.release();
-      } catch (releaseError) {
-        console.error('Error releasing client:', releaseError);
+      } catch (releaseErr) {
+        console.error('Error releasing client:', releaseErr);
       }
     }
-    
+
     return NextResponse.json(
-      { 
+      {
         success: false,
-        message: 'Error deleting service user', 
-        error: String(error)
+        message: 'Error deleting service user',
+        error: String(err),
       },
       { status: 500 }
     );

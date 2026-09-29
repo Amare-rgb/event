@@ -29,25 +29,25 @@ const SERVICE_CATEGORIES = {
     'Custom Software Development',
     'Website & Mobile App Development',
     'Startup Tech Solution',
-    'Business Automation & IT Consultation'
+    'Business Automation & IT Consultation',
   ],
   'CREATIVE & BRANDING': [
     'Brand Identity Design',
     'Graphic Design',
-    'Content Creation'
+    'Content Creation',
   ],
   'DIGITAL BUSINESS': [
     'Digital Transformation & Consulting',
     'Digital Strategy Development',
     'Business Process Improvement',
-    'Project Management Support'
+    'Project Management Support',
   ],
   'DIGITAL MARKETING': [
     'Social Media Management',
     'Digital Marketing Strategy & Ads',
     'Video Production & Editing',
-    'Photography & Drone Services'
-  ]
+    'Photography & Drone Services',
+  ],
 };
 
 const CATEGORY_NAMES = Object.keys(SERVICE_CATEGORIES);
@@ -55,10 +55,8 @@ const CATEGORY_NAMES = Object.keys(SERVICE_CATEGORIES);
 // Translations
 const translations = {
   en: {
-    // Header
     eventRegistration: 'Event Registration',
     appName: 'DreamMore',
-    // Form Labels
     firstName: 'First Name *',
     lastName: 'Last Name *',
     gender: 'Gender *',
@@ -83,7 +81,6 @@ const translations = {
     noServicesInCategory: 'No services available in this category',
     loadingCourses: 'Loading courses...',
     loadingServices: 'Loading services...',
-    // Placeholders
     firstNamePlaceholder: 'Abebe',
     lastNamePlaceholder: 'Kebede',
     emailPlaceholder: 'dreammore@example.com',
@@ -97,10 +94,8 @@ const translations = {
       female: 'Female',
       other: 'Other',
     },
-    // Buttons
     register: 'Register Now',
     registering: 'Registering...',
-    // Messages
     success: 'Registration Successful!',
     welcome: 'Welcome to DreamMore! You will be redirected shortly...',
     firstNameError: 'First name is required',
@@ -122,10 +117,8 @@ const translations = {
     networkError: 'Network error. Please try again.',
   },
   am: {
-    // Header
     eventRegistration: 'የዝግጅት ምዝገባ',
     appName: 'ድሪም ሞር',
-    // Form Labels
     firstName: 'ስም *',
     lastName: 'የአባት ስም *',
     gender: 'ፆታ *',
@@ -150,7 +143,6 @@ const translations = {
     noServicesInCategory: 'በዚህ ምድብ ውስጥ ምንም አገልግሎቶች የሉም',
     loadingCourses: 'ኮርሶችን በማግኘት ላይ...',
     loadingServices: 'አገልግሎቶችን በማግኘት ላይ...',
-    // Placeholders
     firstNamePlaceholder: 'አበበ',
     lastNamePlaceholder: 'ከበደ',
     emailPlaceholder: 'dreammore@example.com',
@@ -164,10 +156,8 @@ const translations = {
       female: 'ሴት',
       other: 'ሌላ',
     },
-    // Buttons
     register: 'አሁን ይመዝገቡ',
     registering: 'እየተመዘገበ ነው...',
-    // Messages
     success: 'ምዝገባ ተሳክቷል!',
     welcome: 'እንኳን ወደ DreamMore በደህና መጡ! በቅርቡ ይዘናጋሉ...',
     firstNameError: 'ስም ያስፈልጋል',
@@ -187,10 +177,13 @@ const translations = {
     serviceError: 'እባክዎ አገልግሎት ይምረጡ',
     organizationError: 'የድርጅት ስም ያስፈልጋል',
     networkError: 'የአውታረ መረብ ችግር። እባክዎ እንደገና ይሞክሩ።',
-  }
+  },
 };
 
-export default function RegistrationForm({ onSuccess, language = 'en' }: RegistrationFormProps) {
+export default function RegistrationForm({
+  onSuccess,
+  language = 'en',
+}: RegistrationFormProps) {
   const [services, setServices] = useState<Service[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
@@ -202,23 +195,23 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
     phone: '',
     address: '',
     gender: '',
-    userType: '', // 'student' or 'service'
+    userType: '',
     course: '',
     serviceCategory: '',
     serviceId: '',
-    organization: '', // New field for organization
+    organization: '',
     experience: '',
   });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
-  const [errors, setErrors] = useState<{[key: string]: string}>({});
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSuccess, setIsSuccess] = useState(false);
 
   const t = translations[language];
 
   // Get filtered services based on selected category
   const filteredServices = formData.serviceCategory
-    ? services.filter(s => s.category === formData.serviceCategory)
+    ? services.filter((s) => s.category === formData.serviceCategory)
     : [];
 
   // Fetch services and courses from API when component mounts
@@ -232,8 +225,9 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
         } else {
           console.error('Failed to fetch services:', data.message);
         }
-      } catch (error) {
-        console.error('Error fetching services:', error);
+      } catch (err) {
+        // ✅ FIX 1: Renamed `error` → `err` and used it in console.error
+        console.error('Error fetching services:', err);
       } finally {
         setLoadingServices(false);
       }
@@ -248,8 +242,9 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
         } else {
           console.error('Failed to fetch courses:', data.message);
         }
-      } catch (error) {
-        console.error('Error fetching courses:', error);
+      } catch (err) {
+        // ✅ FIX 2: Renamed `error` → `err` and used it in console.error
+        console.error('Error fetching courses:', err);
       } finally {
         setLoadingCourses(false);
       }
@@ -260,8 +255,8 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
   }, []);
 
   const validateForm = () => {
-    const newErrors: {[key: string]: string} = {};
-    
+    const newErrors: { [key: string]: string } = {};
+
     // First Name - only letters and spaces
     if (!formData.firstName.trim()) {
       newErrors.firstName = t.firstNameError;
@@ -270,7 +265,7 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
     } else if (!/^[A-Za-z\s]+$/.test(formData.firstName)) {
       newErrors.firstName = t.firstNameCharError;
     }
-    
+
     // Last Name - only letters and spaces
     if (!formData.lastName.trim()) {
       newErrors.lastName = t.lastNameError;
@@ -279,37 +274,37 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
     } else if (!/^[A-Za-z\s]+$/.test(formData.lastName)) {
       newErrors.lastName = t.lastNameCharError;
     }
-    
+
     // Email - required
     if (!formData.email.trim()) {
       newErrors.email = t.emailError;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = t.emailError;
     }
-    
-    // Phone - required - only numbers, +, -, spaces, ()
+
+    // Phone - required
     if (!formData.phone.trim()) {
       newErrors.phone = t.phoneError;
     } else if (!/^[\+\d\s\-()]{7,20}$/.test(formData.phone)) {
       newErrors.phone = t.phoneValidError;
     }
-    
+
     // Address - required
     if (!formData.address.trim()) {
       newErrors.address = t.addressError;
     }
-    
+
     // Gender - required
     if (!formData.gender) {
       newErrors.gender = t.genderError;
     }
-    
+
     // User Type - required
     if (!formData.userType) {
       newErrors.userType = t.userTypeError;
     }
-    
-    // Conditional validation based on user type
+
+    // Conditional validation
     if (formData.userType === 'student') {
       if (!formData.course) {
         newErrors.course = t.courseError;
@@ -321,51 +316,50 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
       if (!formData.serviceId) {
         newErrors.serviceId = t.serviceError;
       }
-      // Organization validation for service users
       if (!formData.organization.trim()) {
         newErrors.organization = t.organizationError;
       }
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    
+
     if ((name === 'firstName' || name === 'lastName') && /[0-9]/.test(value)) {
       return;
     }
-    
+
     if (name === 'phone') {
       const phoneRegex = /^[\+\d\s\-()]*$/;
       if (!phoneRegex.test(value)) {
         return;
       }
     }
-    
-    // If userType changes, clear the related fields
+
     if (name === 'userType') {
-      setFormData({ 
-        ...formData, 
+      setFormData({
+        ...formData,
         userType: value,
         course: '',
         serviceCategory: '',
         serviceId: '',
-        organization: '' // Clear organization when switching user type
+        organization: '',
       });
     } else if (name === 'serviceCategory') {
-      // When category changes, clear the service selection
-      setFormData({ 
-        ...formData, 
+      setFormData({
+        ...formData,
         serviceCategory: value,
-        serviceId: ''
+        serviceId: '',
       });
     } else {
       setFormData({ ...formData, [name]: value });
     }
-    
+
     if (errors[name]) {
       setErrors({ ...errors, [name]: '' });
     }
@@ -373,11 +367,11 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
-    
+
     setLoading(true);
     setMessage({ text: '', type: '' });
     setIsSuccess(false);
@@ -387,7 +381,8 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
         ...formData,
         course: formData.userType === 'student' ? formData.course : '',
         serviceId: formData.userType === 'service' ? formData.serviceId : '',
-        organization: formData.userType === 'service' ? formData.organization : '',
+        organization:
+          formData.userType === 'service' ? formData.organization : '',
         userType: formData.userType,
       };
 
@@ -400,16 +395,16 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
       const data = await response.json();
 
       if (response.ok) {
-        setMessage({ 
-          text: '✅ ' + t.success, 
-          type: 'success' 
+        setMessage({
+          text: '✅ ' + t.success,
+          type: 'success',
         });
         setIsSuccess(true);
-        setFormData({ 
-          firstName: '', 
-          lastName: '', 
+        setFormData({
+          firstName: '',
+          lastName: '',
           email: '',
-          phone: '', 
+          phone: '',
           address: '',
           gender: '',
           userType: '',
@@ -419,21 +414,21 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
           organization: '',
           experience: '',
         });
-        
+
         setTimeout(() => {
           if (onSuccess) onSuccess();
         }, 3000);
-        
       } else {
-        setMessage({ 
-          text: `❌ ${data.message || t.register}`, 
-          type: 'error' 
+        setMessage({
+          text: `❌ ${data.message || t.register}`,
+          type: 'error',
         });
       }
-    } catch (error) {
-      setMessage({ 
-        text: '❌ ' + t.networkError, 
-        type: 'error' 
+    } catch {
+      // ✅ FIX 3: Removed unused `error` variable from catch
+      setMessage({
+        text: '❌ ' + t.networkError,
+        type: 'error',
       });
     } finally {
       setLoading(false);
@@ -445,10 +440,10 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
       {/* Logo at top */}
       <div className="flex items-center justify-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-xl overflow-hidden shadow-md flex-shrink-0">
-          <Image 
-            src="/logo.jpg" 
-            alt="DreamMore Logo" 
-            width={48} 
+          <Image
+            src="/logo.jpg"
+            alt="DreamMore Logo"
+            width={48}
             height={48}
             className="object-cover w-full h-full"
           />
@@ -458,22 +453,40 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
           <p className="text-xs text-gray-500">{t.eventRegistration}</p>
         </div>
       </div>
-      
+
       {/* Success/Error Message */}
       {message.text && (
-        <div className={`mb-4 p-3 rounded-lg text-sm ${
-          message.type === 'success' 
-            ? 'bg-green-50 text-green-700 border border-green-200' 
-            : 'bg-red-50 text-red-700 border border-red-200'
-        }`}>
+        <div
+          className={`mb-4 p-3 rounded-lg text-sm ${
+            message.type === 'success'
+              ? 'bg-green-50 text-green-700 border border-green-200'
+              : 'bg-red-50 text-red-700 border border-red-200'
+          }`}
+        >
           <div className="flex items-center gap-2">
             {message.type === 'success' ? (
-              <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              <svg
+                className="w-5 h-5 text-green-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                  clipRule="evenodd"
+                />
               </svg>
             ) : (
-              <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              <svg
+                className="w-5 h-5 text-red-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
               </svg>
             )}
             <span>{message.text}</span>
@@ -546,7 +559,7 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
               <p className="text-red-500 text-xs mt-1">{errors.gender}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               {t.email}
@@ -566,7 +579,7 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               {t.phone}
@@ -586,7 +599,7 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
               <p className="text-red-500 text-xs mt-1">{errors.phone}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               {t.address}
@@ -630,7 +643,7 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
             )}
           </div>
 
-          {/* Course Selection - Only visible when Student is selected */}
+          {/* Course Selection */}
           {formData.userType === 'student' && (
             <div className="animate-fadeIn">
               <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -660,17 +673,14 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
                 <p className="text-red-500 text-xs mt-1">{errors.course}</p>
               )}
               {courses.length === 0 && !loadingCourses && (
-                <p className="text-yellow-500 text-xs mt-1">
-                  {t.noCourses}
-                </p>
+                <p className="text-yellow-500 text-xs mt-1">{t.noCourses}</p>
               )}
             </div>
           )}
 
-          {/* Service Selection - Only visible when Service User is selected */}
+          {/* Service Selection */}
           {formData.userType === 'service' && (
             <div className="animate-fadeIn space-y-3">
-              {/* Service Category Dropdown */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   {t.selectServiceCategory}
@@ -692,11 +702,12 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
                   ))}
                 </select>
                 {errors.serviceCategory && (
-                  <p className="text-red-500 text-xs mt-1">{errors.serviceCategory}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.serviceCategory}
+                  </p>
                 )}
               </div>
 
-              {/* Service Dropdown - Filtered by Category */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   {t.selectService}
@@ -709,7 +720,11 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
                   disabled={!formData.serviceCategory || loadingServices}
                   className={`w-full px-3 py-1.5 text-sm border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition bg-white cursor-pointer ${
                     errors.serviceId ? 'border-red-500' : 'border-gray-300'
-                  } ${!formData.serviceCategory ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${
+                    !formData.serviceCategory
+                      ? 'opacity-50 cursor-not-allowed'
+                      : ''
+                  }`}
                 >
                   <option value="">
                     {loadingServices ? t.loadingServices : t.chooseService}
@@ -722,21 +737,24 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
                     ))
                   ) : (
                     <option value="" disabled>
-                      {formData.serviceCategory ? t.noServicesInCategory : t.chooseServiceCategory}
+                      {formData.serviceCategory
+                        ? t.noServicesInCategory
+                        : t.chooseServiceCategory}
                     </option>
                   )}
                 </select>
                 {errors.serviceId && (
                   <p className="text-red-500 text-xs mt-1">{errors.serviceId}</p>
                 )}
-                {filteredServices.length === 0 && formData.serviceCategory && !loadingServices && (
-                  <p className="text-yellow-500 text-xs mt-1">
-                    {t.noServicesInCategory}
-                  </p>
-                )}
+                {filteredServices.length === 0 &&
+                  formData.serviceCategory &&
+                  !loadingServices && (
+                    <p className="text-yellow-500 text-xs mt-1">
+                      {t.noServicesInCategory}
+                    </p>
+                  )}
               </div>
 
-              {/* Organization Field - Only for Service Users */}
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   {t.organization}
@@ -753,12 +771,14 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
                   placeholder={t.organizationPlaceholder}
                 />
                 {errors.organization && (
-                  <p className="text-red-500 text-xs mt-1">{errors.organization}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.organization}
+                  </p>
                 )}
               </div>
             </div>
           )}
-          
+
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               {t.experience}
@@ -772,7 +792,7 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
               placeholder={t.experiencePlaceholder}
             />
           </div>
-          
+
           <div className="flex justify-center pt-2">
             <button
               type="submit"
@@ -781,16 +801,42 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   {t.registering}
                 </>
               ) : (
                 <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   {t.register}
                 </>
@@ -801,8 +847,18 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
       ) : (
         <div className="text-center py-8">
           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+            <svg
+              className="w-10 h-10 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M5 13l4 4L19 7"
+              />
             </svg>
           </div>
           <h3 className="text-2xl font-bold text-gray-900 mb-2">{t.success}</h3>
@@ -815,15 +871,25 @@ export default function RegistrationForm({ onSuccess, language = 'en' }: Registr
 
       <style jsx>{`
         @keyframes progress {
-          0% { width: 0%; }
-          100% { width: 100%; }
+          0% {
+            width: 0%;
+          }
+          100% {
+            width: 100%;
+          }
         }
         .animate-progress {
           animation: progress 3s ease-in-out forwards;
         }
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-in-out;
